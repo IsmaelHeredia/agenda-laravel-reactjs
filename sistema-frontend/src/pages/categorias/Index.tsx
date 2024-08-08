@@ -353,7 +353,7 @@ const ListarCategorias = () => {
                 disableEscapeKeyDown
             >
                 <DialogTitle>
-                    <Typography variant="h4" component="div">Categoría</Typography>
+                    <Typography variant="h4" component="div">Gestión de categoría</Typography>
                 </DialogTitle>
                 <form onSubmit={handleSubmitCategoria(handleClickGuardarCategoria)} noValidate>
                     <DialogContent style={{ paddingTop: 10 }}>
@@ -407,7 +407,7 @@ const ListarCategorias = () => {
                     <Typography variant="h4" component="div">Confirmación</Typography>
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 10 }}>
-                <Typography>Desea borrar la categoría { confirmDeleteCategoriaNombre } ?</Typography>
+                <Typography>¿ Desea borrar la categoría { confirmDeleteCategoriaNombre } ?</Typography>
                 </DialogContent>
                 <DialogActions className="center-div" style={{ marginBottom: "10px" }}>
                     <LoadingButton 

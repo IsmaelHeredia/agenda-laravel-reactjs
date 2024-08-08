@@ -392,7 +392,7 @@ const ListarNotas = () => {
                     <Typography variant="h4" component="div">Confirmación</Typography>
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 10 }}>
-                <Typography>Desea borrar la nota { confirmDeleteNotaTitulo } ?</Typography>
+                <Typography>¿ Desea borrar la nota { confirmDeleteNotaTitulo } ?</Typography>
                 </DialogContent>
                 <DialogActions className="center-div" style={{ marginBottom: "10px" }}>
                     <LoadingButton 

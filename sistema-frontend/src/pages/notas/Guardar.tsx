@@ -102,10 +102,7 @@ const GuardarNota = () => {
 
             resetNota(defaults);
 
-            const fecha_obj = new Date(nota.fecha_expiracion);
-            const fecha_format = dayjs(fecha_obj);
-
-            setValueNota("fecha_expiracion", (nota.fecha_expiracion != null) ? fecha_format : null);
+            setValueNota("fecha_expiracion", (nota.fecha_expiracion != null) ? dayjs(nota.fecha_expiracion, "YYYY-MM-DD") : null);
 
             setUuid(nota.uuid);
 
@@ -131,7 +128,7 @@ const GuardarNota = () => {
 
         const es_favorita_bd = (es_favorita == true) ? 1 : 0;
 
-        const fecha_expiracion = data.fecha_expiracion ? data.fecha_expiracion?.toDate().toISOString().slice(0, 19).replace("T", " ") : null;
+        const fecha_expiracion = data.fecha_expiracion ? data.fecha_expiracion?.format("YYYY-MM-DD") : null;
 
         if(id == null || Number(id) == 0) {
         
@@ -235,7 +232,7 @@ const GuardarNota = () => {
                     <form onSubmit={handleSubmitNota(handleClickGuardarNota)} noValidate>
                         <CardContent>
                             <Typography gutterBottom variant="h4" component="div" align="center">
-                                Nota
+                                Gestión de nota
                             </Typography>
                             <TextField 
                                 {...registerNota("titulo", { required: true })}
@@ -243,7 +240,7 @@ const GuardarNota = () => {
                                 variant="outlined"
                                 color="primary"
                                 type="text"
-                                sx={{ mb: 3 }}
+                                sx={{ mt: 3, mb: 3 }}
                                 fullWidth
                                 InputLabelProps={{ shrink: true }}
                                 error={ !!errorsNota.titulo }

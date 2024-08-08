@@ -94,7 +94,7 @@ th {
 
 .ProseMirror {
   font-weight: normal !important;
-  height: 800px;
+  max-height: 800px;
   overflow-y: scroll;
 }
 
