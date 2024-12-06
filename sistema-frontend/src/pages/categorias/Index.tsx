@@ -452,8 +452,8 @@ const ListarCategorias = () => {
                     <>
                     <div className="datos-tabla">
 
-                        <TableContainer component={Paper}>
-                            <Table sx={{ width: "100%" }} aria-label="simple table">
+                        <TableContainer className="listado-categorias" component={Paper}>
+                            <Table aria-label="simple table">
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Nombre</TableCell>

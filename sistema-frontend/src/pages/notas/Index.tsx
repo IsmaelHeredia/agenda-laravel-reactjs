@@ -436,7 +436,7 @@ const ListarNotas = () => {
                     <>
                     <div className="datos-tabla">
 
-                        <TableContainer style={{ maxHeight: "460px", overflowY: "auto" }} component={Paper}>
+                        <TableContainer className="listado-notas" component={Paper}>
                             <Table aria-label="simple table">
                                 <TableHead>
                                     <TableRow>

@@ -26,7 +26,7 @@ class HomeController extends Controller
 
         $notas = Nota::with('categorias')->where('titulo', 'like', '%' . $porTitulo . '%')
             ->orderBy('updated_at', 'DESC')
-            ->paginate($_ENV['PER_PAGE'], ['*'], 'page', $pagina);
+            ->paginate(25, ['*'], 'page', $pagina);
 
         return $this->data($categorias_lista, $categorias, $notas);
     }

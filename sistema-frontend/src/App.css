@@ -107,6 +107,7 @@ th {
   grid-column-gap: 1em;
   margin-left: 5%;
   margin-right: 5%;
+  padding-right: 30px;
 }
 
 .item {
@@ -175,4 +176,19 @@ th {
 .Toastify__toast-theme--light {
   background-color: #504945 !important;
   color: #e4e2db !important;
+}
+
+.listado-fijadas {
+  height: calc(100vh - 280px);
+  overflow: auto;
+}
+
+.listado-categorias {
+  height: calc(100vh - 350px);
+  overflow: auto;
+}
+
+.listado-notas {
+  height: calc(100vh - 350px);
+  overflow: auto;
 }

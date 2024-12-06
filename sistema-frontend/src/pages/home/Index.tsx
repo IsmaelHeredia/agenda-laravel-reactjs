@@ -30,7 +30,7 @@ const Home = () => {
         titulo: "",
         categorias: [],
         favorita: true,
-        cantidad: 10
+        cantidad: 25
     });
 
     const notas: Nota[] = dataNotas?.notas ? dataNotas?.notas : [];
@@ -97,7 +97,7 @@ const Home = () => {
                         </Typography>
                     :
                         <>
-                        <div className="container">
+                        <div className="container listado-fijadas">
                             {notas.map((nota: Nota) => (
                                 <div key={nota.id} className="item">
                                     <NotaFija idNota={nota.id} />

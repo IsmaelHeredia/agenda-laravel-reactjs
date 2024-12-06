@@ -54,7 +54,7 @@ class NotaController extends Controller
 
         $notas->orderBy('updated_at', 'DESC');
 
-        $per_page = ($porCantidad != null && $porCantidad > 0) ? $porCantidad : $_ENV['PER_PAGE'];
+        $per_page = ($porCantidad != null && $porCantidad > 0) ? $porCantidad : 25;
 
         $resultado = $notas->paginate($per_page, ['*'], 'page', $pagina);
 

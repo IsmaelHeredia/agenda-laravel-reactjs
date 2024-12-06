@@ -27,7 +27,7 @@ class CategoriaController extends Controller
         
         $resultado = Categoria::where('nombre', 'like', '%' . $porNombre . '%')
                       ->orderBy('nombre', 'ASC')
-                      ->paginate($_ENV['PER_PAGE'], ['*'], 'page', $pagina);
+                      ->paginate(25, ['*'], 'page', $pagina);
 
         return $this->success('Se envío listado de categorías', $resultado);
     }
