@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
         $datetime = date('Y-m-d H:i:s');
 
         Usuario::insert([
-            ['nombre' => 'supervisor', 'clave' => Hash::make('supervisor'), 'created_at' => $datetime, 'updated_at' => $datetime],
+            ['nombre' => 'admin', 'clave' => Hash::make('admin'), 'created_at' => $datetime, 'updated_at' => $datetime],
         ]);
 
         Categoria::insert([

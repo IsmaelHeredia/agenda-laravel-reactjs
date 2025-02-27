@@ -5,7 +5,6 @@
 }
 
 .contenedor {
-  margin-top: 8%;
   margin-left: 20%;
   margin-right: 20%;
 }
@@ -35,7 +34,7 @@ pre {
 
 .botones-principales {
   margin-left: 20px;
-  margin-top: 20px;
+  margin-top: 5px;
   margin-bottom: 20px;
 }
 
@@ -71,9 +70,9 @@ th {
 
 .botones-theme {
   position: fixed;
-  bottom: 0;
+  top: 0;
   right: 0;
-  margin-bottom: 15px;
+  margin-top: 15px;
 }
 
 .controls-right {
@@ -98,6 +97,15 @@ th {
   overflow-y: scroll;
 }
 
+.editor {
+  border-radius: 12px !important;
+}
+
+.toolbar {
+  border-radius: 12px 12px 0 0 !important;
+  overflow: hidden;
+}
+
 /* Columnas */
 
 .container {
@@ -106,8 +114,7 @@ th {
   grid-row-gap: 55px;
   grid-column-gap: 1em;
   margin-left: 5%;
-  margin-right: 5%;
-  padding-right: 30px;
+  margin-right: 4%;
 }
 
 .item {
@@ -121,19 +128,26 @@ th {
 }
 
 .paginas-home {
-  padding: 10px 0;
-  text-align: center;
-  position: absolute;
-  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
+  padding: 10px;
+  padding-top: 10%;
 }
 
 .left-home {
-  padding-left: 5%;
+  padding-left: 6%;
 }
 
 .right-home {
   padding-right: 5%;
+}
+
+.listado-fijadas {
+  height: 100%;
+  overflow: auto;
 }
 
 .paginas-categorias {
@@ -178,17 +192,38 @@ th {
   color: #e4e2db !important;
 }
 
-.listado-fijadas {
-  height: calc(100vh - 280px);
+.listado-categorias {
+  height: calc(100vh - 410px);
   overflow: auto;
 }
 
-.listado-categorias {
-  height: calc(100vh - 350px);
-  overflow: auto;
+.filtros-categorias {
+  margin-bottom: 20px;
 }
 
 .listado-notas {
-  height: calc(100vh - 350px);
+  height: calc(100vh - 410px);
   overflow: auto;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2b2727;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #504945;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #504945;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #504945 #2b2727;
 }

@@ -25,12 +25,12 @@ const Home = () => {
 
     const [pagina, setPagina] = useState(1);
 
-    const { data: dataNotas, isLoading} = useGetNotasPaginaQuery({
+    const { data: dataNotas, isLoading } = useGetNotasPaginaQuery({
         pagina: pagina,
         titulo: "",
         categorias: [],
         favorita: true,
-        cantidad: 25
+        cantidad: 10
     });
 
     const notas: Nota[] = dataNotas?.notas ? dataNotas?.notas : [];
@@ -44,8 +44,8 @@ const Home = () => {
     });
 
     useEffect(() => {
-    
-        if(dataNotas) {
+
+        if (dataNotas) {
 
             const total = parseInt(dataNotas.total);
             const paginas = parseInt(dataNotas.last_page);
@@ -54,15 +54,15 @@ const Home = () => {
             const siguiente = (actual + 1) < total ? (actual + 1) : total;
 
             setPaginationData({
-              total: total,
-              paginas: paginas,
-              actual: actual,
-              anterior: anterior,
-              siguiente: siguiente
+                total: total,
+                paginas: paginas,
+                actual: actual,
+                anterior: anterior,
+                siguiente: siguiente
             });
 
         }
-    
+
     }, [dataNotas]);
 
     const handleClickAtrasTodo = () => {
@@ -81,59 +81,57 @@ const Home = () => {
         setPagina(paginationData.paginas);
     };
 
-    return(
+    return (
         <LayoutAdmin>
 
             {isLoading ?
-                <div className="center-div" style={{ marginTop:"70px" }}>
-                    <CircularProgress color="secondary" size="5rem" className="center-div" style={{ marginTop:"100px" }} />
+                <div className="center-div" style={{ marginTop: "70px" }}>
+                    <CircularProgress color="secondary" size="5rem" className="center-div" style={{ marginTop: "100px" }} />
                 </div>
-            :
-                <>
-                    <div style={{ marginTop:"150px" }}></div>
+                :
+                <div style={{ marginTop: "30px", display: "flex", flexDirection: "column", alignItems: "center", width: "100%", overflowX: "hidden" }}>
                     {notas?.length == 0 ?
                         <Typography variant="h5" className="center-div" style={{ marginTop: "20px" }}>
                             No se encontraron notas fijadas
                         </Typography>
-                    :
+                        :
                         <>
-                        <div className="container listado-fijadas">
-                            {notas.map((nota: Nota) => (
-                                <div key={nota.id} className="item">
-                                    <NotaFija idNota={nota.id} />
-                                </div>
-                            ))}
-                        </div>
-                        <div className="paginas-home" style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-                            <Typography className="left-home" style={{ marginTop: "20px" }}>
-                                Página {paginationData.actual} / {paginationData.paginas}
-                            </Typography>
-                            <div className="right-home">
-                                <ButtonGroup variant="contained" aria-label="Basic button group">
-                                    <IconButton disabled={ paginationData.actual == 1 } onClick={handleClickAtrasTodo}>
-                                        <KeyboardDoubleArrowLeftIcon sx={{ fontSize: 50 }} />
-                                    </IconButton>
-                                    <IconButton disabled={ paginationData.actual == 1 } onClick={handleClickAtras}>
-                                        <KeyboardArrowLeftIcon sx={{ fontSize: 50 }} />
-                                    </IconButton>
-                                    <IconButton disabled={ paginationData.actual == paginationData.paginas } onClick={handleClickSiguiente}>
-                                        <KeyboardArrowRightIcon sx={{ fontSize: 50 }} />
-                                    </IconButton>
-                                    <IconButton disabled={ paginationData.actual == paginationData.paginas } onClick={handleClickSiguienteTodo}>
-                                        <KeyboardDoubleArrowRightIcon sx={{ fontSize: 50 }} />
-                                    </IconButton>
-                                </ButtonGroup>
+                            <div className="container listado-fijadas">
+                                {notas.map((nota: Nota) => (
+                                    <div key={nota.id} className="item">
+                                        <NotaFija idNota={nota.id} />
+                                    </div>
+                                ))}
                             </div>
-                        </div>
+                            <div className="paginas-home" style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
+                                <Typography className="left-home" style={{ marginTop: "20px" }}>
+                                    Página {paginationData.actual} / {paginationData.paginas}
+                                </Typography>
+                                <div className="right-home">
+                                    <ButtonGroup variant="contained">
+                                        <IconButton disabled={paginationData.actual == 1} onClick={handleClickAtrasTodo}>
+                                            <KeyboardDoubleArrowLeftIcon sx={{ color: "text.primary" }} fontSize="large" />
+                                        </IconButton>
+                                        <IconButton disabled={paginationData.actual == 1} onClick={handleClickAtras}>
+                                            <KeyboardArrowLeftIcon sx={{ color: "text.primary" }} fontSize="large" />
+                                        </IconButton>
+                                        <IconButton disabled={paginationData.actual == paginationData.paginas} onClick={handleClickSiguiente}>
+                                            <KeyboardArrowRightIcon sx={{ color: "text.primary" }} fontSize="large" />
+                                        </IconButton>
+                                        <IconButton disabled={paginationData.actual == paginationData.paginas} onClick={handleClickSiguienteTodo}>
+                                            <KeyboardDoubleArrowRightIcon sx={{ color: "text.primary" }} fontSize="large" />
+                                        </IconButton>
+                                    </ButtonGroup>
+                                </div>
+                            </div>
                         </>
                     }
-
-                </>
+                </div>
             }
 
         </LayoutAdmin>
     );
 
 };
-  
+
 export default Home;

@@ -66,7 +66,7 @@ const NotaFija = (props: Props) => {
         <>
 
             <Tooltip title={ fecha_expiracion ? "Vence el " + fecha_expiracion_format : "" }>
-                <Card sx={{ border: (fecha_expiracion != null) ? "2px solid #ffb4a9" : "none" }} className="card-nota-fija" onClick={handleClickOpen}>
+                <Card sx={{ border: (fecha_expiracion != null) ? "2px solid #ffb4a9" : "none", borderRadius: 8, p: 2, pb: 2, boxShadow: 3 }} className="card-nota-fija" onClick={handleClickOpen}>
                     <CardContent>
                         <Typography gutterBottom variant="h4" component="div" align="center" style={{ fontSize: "25px", marginTop: "15px" }}>
                             {titulo}
@@ -84,6 +84,7 @@ const NotaFija = (props: Props) => {
                 disableEscapeKeyDown
                 fullWidth
                 maxWidth="sm"
+                sx={{ "& .MuiPaper-root": { borderRadius: "16px" } }}
             >
                 <DialogTitle>
                     <Typography variant="h4" component="div" className="center">{titulo}</Typography>

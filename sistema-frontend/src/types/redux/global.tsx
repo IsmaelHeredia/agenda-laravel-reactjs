@@ -11,5 +11,9 @@ export interface RootState {
         note_name: string;
         note_categories: any;
         note_favorite: number;
+    },
+    pagination: {
+        category_page: number;
+        note_page: number;
     }
 }

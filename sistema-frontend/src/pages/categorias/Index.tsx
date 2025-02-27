@@ -1,9 +1,9 @@
 import LayoutAdmin from "@layouts/LayoutAdmin";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, useMediaQuery } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
@@ -53,15 +53,17 @@ import {
 } from "@store/api/apiCategorias";
 
 const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>,
+    props: TransitionProps & {
+        children: React.ReactElement<any, any>;
+    },
+    ref: React.Ref<unknown>,
 ) {
-  return <Slide direction="up" ref={ref} {...props} />
+    return <Slide direction="up" ref={ref} {...props} />
 });
-  
+
 const ListarCategorias = () => {
+
+    const isMobile = useMediaQuery("(max-width:600px)");
 
     const dispatch = useDispatch();
 
@@ -69,7 +71,7 @@ const ListarCategorias = () => {
 
     const [pagina, setPagina] = useState(1);
 
-    const { data: dataCategorias, isLoading} = useGetCategoriasPaginaQuery({
+    const { data: dataCategorias, isLoading } = useGetCategoriasPaginaQuery({
         pagina: pagina,
         nombre: filters.category_name
     });
@@ -88,12 +90,14 @@ const ListarCategorias = () => {
         siguiente: 0
     });
 
+    const tablaCategoriasRef = useRef<HTMLDivElement>(null);
+
     const [disabledSave, setDisabledSave] = useState(false);
     const [disabledDelete, setDisabledDelete] = useState(false);
 
     useEffect(() => {
-    
-        if(dataCategorias) {
+
+        if (dataCategorias) {
 
             const total = parseInt(dataCategorias.total);
             const paginas = parseInt(dataCategorias.last_page);
@@ -102,106 +106,120 @@ const ListarCategorias = () => {
             const siguiente = (actual + 1) < total ? (actual + 1) : total;
 
             setPaginationData({
-              total: total,
-              paginas: paginas,
-              actual: actual,
-              anterior: anterior,
-              siguiente: siguiente
+                total: total,
+                paginas: paginas,
+                actual: actual,
+                anterior: anterior,
+                siguiente: siguiente
             });
 
+            ajustarScrollTabla();
+
         }
-    
+
     }, [dataCategorias]);
 
     const [open, setOpen] = useState(false);
 
+    const ajustarScrollTabla = () => {
+        if (tablaCategoriasRef.current) {
+            tablaCategoriasRef.current.scrollTop = 0;
+        }
+    };
+
     const handleClickOpen = () => {
-        
+
         cleanErrorsCategoria();
 
         setValueCategoria("id", 0);
         setValueCategoria("nombre", "");
 
         setOpen(true);
-    
+
     };
-    
+
     const handleClose = (event: any, reason: string) => {
         if (reason && reason === "backdropClick") {
             return;
         }
         setOpen(false);
     };
-    
+
     const handleClickAtrasTodo = () => {
         setPagina(1);
+        ajustarScrollTabla();
     };
 
     const handleClickAtras = () => {
         setPagina(paginationData.anterior);
+        ajustarScrollTabla();
     };
 
     const handleClickSiguiente = () => {
         setPagina(paginationData.siguiente);
+        ajustarScrollTabla();
     };
 
     const handleClickSiguienteTodo = () => {
         setPagina(paginationData.paginas);
+        ajustarScrollTabla();
     };
 
     const handleClickGuardarCategoria: SubmitHandler<Categoria> = (data) => {
 
-        if(data.id == null || data.id == 0) {
-        
+        if (data.id == null || data.id == 0) {
+
             createCategoria(data.nombre)
-            .unwrap()
-            .then((payload: any) => {
+                .unwrap()
+                .then((payload: any) => {
 
-                const estado = payload.estado;
-                const mensaje = payload.mensaje;
+                    const estado = payload.estado;
+                    const mensaje = payload.mensaje;
 
-                if (estado == 1) {
-                    setOpen(false);
-                    toast.success(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-                } else {
-                    toast.warning(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-                }
+                    if (estado == 1) {
+                        setOpen(false);
+                        ajustarScrollTabla();
+                        toast.success(mensaje, { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                    } else {
+                        toast.warning(mensaje, { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                    }
 
-            })
-            .catch((error: any) => {  
-                console.log('rejected', error);
-                toast.error(String(import.meta.env.VITE_ERROR_AXIOS), {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-            });
+                })
+                .catch((error: any) => {
+                    console.log('rejected', error);
+                    toast.error(String(import.meta.env.VITE_ERROR_AXIOS), { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                });
 
         } else {
 
             const datosForm = {
                 "id": data.id,
-                "nombre" : data.nombre,
+                "nombre": data.nombre,
             };
 
             updateCategoria(datosForm)
-            .unwrap()
-            .then((payload: any) => {
+                .unwrap()
+                .then((payload: any) => {
 
-                const estado = payload.estado;
-                const mensaje = payload.mensaje;
+                    const estado = payload.estado;
+                    const mensaje = payload.mensaje;
 
-                if (estado == 1) {
-                    setOpen(false);
-                    toast.success(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-                } else {
-                    toast.warning(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-                }
+                    if (estado == 1) {
+                        setOpen(false);
+                        ajustarScrollTabla();
+                        toast.success(mensaje, { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                    } else {
+                        toast.warning(mensaje, { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                    }
 
-            })
-            .catch((error: any) => {  
-                console.log('rejected', error);
-                toast.error(String(import.meta.env.VITE_ERROR_AXIOS), {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-            });
+                })
+                .catch((error: any) => {
+                    console.log('rejected', error);
+                    toast.error(String(import.meta.env.VITE_ERROR_AXIOS), { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                });
 
         }
-                
+
     };
 
     const handleEditCategoria = (id: number) => {
@@ -241,104 +259,112 @@ const ListarCategorias = () => {
 
     const [confirmDeleteCategoriaId, setConfirmDeleteCategoriaId] = useState(0);
     const [confirmDeleteCategoriaNombre, setConfirmDeleteCategoriaNombre] = useState("");
-  
+
     const handleConfirmDelete = () => {
 
         deleteCategoria(confirmDeleteCategoriaId)
-        .unwrap()
-        .then((payload: any) => {
+            .unwrap()
+            .then((payload: any) => {
 
-            const estado = payload.estado;
-            const mensaje = payload.mensaje;
+                const estado = payload.estado;
+                const mensaje = payload.mensaje;
 
-            if (estado == 1) {
-                setOpen(false);
-                toast.success(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-            } else {
-                toast.warning(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-            }
+                if (estado == 1) {
+                    setOpen(false);
+                    ajustarScrollTabla();
+                    toast.success(mensaje, { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                } else {
+                    toast.warning(mensaje, { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                }
 
-        })
-        .catch((error: any) => {  
-            console.log('rejected', error);
-            toast.error(String(import.meta.env.VITE_ERROR_AXIOS), {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-        });
+            })
+            .catch((error: any) => {
+                console.log('rejected', error);
+                toast.error(String(import.meta.env.VITE_ERROR_AXIOS), { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+            });
 
         setOpenConfirm(false);
     };
 
     const handleClickFiltrar: SubmitHandler<FiltrarCategoria> = (data) => {
         dispatch(changeFiltersCategory({
-            "name" : data.buscarNombre
+            "name": data.buscarNombre
         }));
     };
 
     const handleClickBorrarFiltro = () => {
         dispatch(changeFiltersCategory({
-            "name" : ""
+            "name": ""
         }));
-        setValueFiltro("buscarNombre","");
+        setValueFiltro("buscarNombre", "");
     };
 
-    const { register : registerCategoria, handleSubmit : handleSubmitCategoria, formState: { errors : errorsCategoria }, control : controlCategoria, setValue : setValueCategoria, clearErrors: cleanErrorsCategoria, getValues : getValueCategoria } = useForm<Categoria>({
-        defaultValues: { 
-            nombre : "",
+    const { register: registerCategoria, handleSubmit: handleSubmitCategoria, formState: { errors: errorsCategoria }, control: controlCategoria, setValue: setValueCategoria, clearErrors: cleanErrorsCategoria, getValues: getValueCategoria } = useForm<Categoria>({
+        defaultValues: {
+            nombre: "",
         }
     });
 
-    const { register: registerFiltro , handleSubmit: handleSubmitFiltro , control : controlFiltro , setValue : setValueFiltro } = useForm<FiltrarCategoria>({
+    const { register: registerFiltro, handleSubmit: handleSubmitFiltro, control: controlFiltro, setValue: setValueFiltro } = useForm<FiltrarCategoria>({
         defaultValues: {
             buscarNombre: filters.category_name,
         }
     });
 
-    return(
+    return (
         <LayoutAdmin>
-
             <div className="botones-principales">
-                <Grid container justifyContent="flex-start" sx={{ mt: 10 }}>
+                <Grid container justifyContent="flex-start" sx={{ px: isMobile ? 2 : 0 }}>
                     <Button
                         startIcon={<AddIcon />}
                         variant="contained"
                         color="primary"
-                        type="submit"
-                        onClick={ handleClickOpen }
+                        sx={{ borderRadius: "12px" }}
+                        onClick={handleClickOpen}
                     >
                         Agregar categoría
                     </Button>
                 </Grid>
             </div>
-            <Divider style={{ width:"100%" }} />
+            <Divider sx={{ width: "100%", my: 2 }} />
             <form onSubmit={handleSubmitFiltro(handleClickFiltrar)}>
-                <Grid container justifyContent="center" alignItems="center" sx={{ mt : 2 }}>
-                    <TextField 
-                        {...registerFiltro("buscarNombre", { required: false })}
-                        label="Ingrese nombre"
-                        variant="outlined"
-                        color="primary"
-                        type="text"
-                        sx={{ mb: 3, width: "25%" }}
-                    />
-                    <div style={{ marginBottom: "25px" }}>
-                        <Button 
-                            type="submit"
-                            variant="contained"
+                <Grid container justifyContent="center" alignItems="center" spacing={2}>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            {...registerFiltro("buscarNombre", { required: false })}
+                            label="Ingrese nombre"
+                            variant="outlined"
                             color="primary"
-                            startIcon={<SearchIcon />}
-                            sx={{ ml: 1 }}
-                        >
-                            Filtrar
-                        </Button>
-                        <Button 
-                            variant="contained"
-                            color="primary"
-                            startIcon={<ClearIcon />}
-                            sx={{ ml: 1 }}
-                            onClick={ handleClickBorrarFiltro }
-                        >
-                            Borrar
-                        </Button>
-                    </div>
+                            type="text"
+                            sx={{
+                                mb: 3,
+                                width: "100%",
+                                "& .MuiOutlinedInput-root": { borderRadius: "12px" }
+                            }}
+                        />
+                    </Grid>
+                    <Grid item>
+                        <div className={isMobile ? "" : "filtros-categorias"}>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                startIcon={<SearchIcon />}
+                                sx={{ borderRadius: "12px", ml: 1 }}
+                            >
+                                Filtrar
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<ClearIcon />}
+                                sx={{ borderRadius: "12px", ml: 1 }}
+                                onClick={handleClickBorrarFiltro}
+                            >
+                                Borrar
+                            </Button>
+                        </div>
+                    </Grid>
                 </Grid>
             </form>
             <Dialog
@@ -351,24 +377,29 @@ const ListarCategorias = () => {
                 fullWidth
                 maxWidth="sm"
                 disableEscapeKeyDown
+                sx={{ "& .MuiPaper-root": { borderRadius: "16px" } }}
             >
                 <DialogTitle>
                     <Typography variant="h4" component="div">Gestión de categoría</Typography>
                 </DialogTitle>
                 <form onSubmit={handleSubmitCategoria(handleClickGuardarCategoria)} noValidate>
                     <DialogContent style={{ paddingTop: 10 }}>
-                        <TextField 
+                        <TextField
                             {...registerCategoria("nombre", { required: true })}
                             label="Nombre"
                             variant="outlined"
                             color="primary"
                             type="text"
                             fullWidth
-                            error={ !!errorsCategoria.nombre }
+                            error={!!errorsCategoria.nombre}
+                            sx={{
+                                mb: 3,
+                                "& .MuiOutlinedInput-root": { borderRadius: "12px" }
+                            }}
                         />
                     </DialogContent>
                     <DialogActions className="center-div" style={{ marginBottom: "10px" }}>
-                        <LoadingButton 
+                        <LoadingButton
                             startIcon={<SaveIcon />}
                             color="primary"
                             variant="contained"
@@ -376,15 +407,17 @@ const ListarCategorias = () => {
                             loading={isLoadingCreate || isLoadingUpdate}
                             loadingPosition="start"
                             type="submit"
+                            sx={{ borderRadius: "12px" }}
                         >
                             Guardar
                         </LoadingButton>
-                        <Button 
+                        <Button
                             startIcon={<CloseIcon />}
                             color="primary"
                             variant="contained"
                             disabled={disabledSave}
-                            onClick={() => setOpen(false) }
+                            sx={{ borderRadius: "12px" }}
+                            onClick={() => setOpen(false)}
                         >
                             Cerrar
                         </Button>
@@ -402,15 +435,16 @@ const ListarCategorias = () => {
                 fullWidth
                 maxWidth="sm"
                 disableEscapeKeyDown
+                sx={{ "& .MuiPaper-root": { borderRadius: "16px" } }}
             >
                 <DialogTitle>
                     <Typography variant="h4" component="div">Confirmación</Typography>
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 10 }}>
-                <Typography>¿ Desea borrar la categoría { confirmDeleteCategoriaNombre } ?</Typography>
+                    <Typography>¿ Desea borrar la categoría {confirmDeleteCategoriaNombre} ?</Typography>
                 </DialogContent>
                 <DialogActions className="center-div" style={{ marginBottom: "10px" }}>
-                    <LoadingButton 
+                    <LoadingButton
                         startIcon={<DeleteIcon />}
                         color="primary"
                         variant="contained"
@@ -418,102 +452,77 @@ const ListarCategorias = () => {
                         loading={isLoadingDelete}
                         loadingPosition="start"
                         type="submit"
-                        onClick={ handleConfirmDelete }
+                        sx={{ borderRadius: "12px" }}
+                        onClick={handleConfirmDelete}
                     >
                         Borrar
                     </LoadingButton>
-                    <Button 
+                    <Button
                         startIcon={<CloseIcon />}
                         color="primary"
                         variant="contained"
                         disabled={disabledDelete}
-                        onClick={() => setOpenConfirm(false) }
+                        sx={{ borderRadius: "12px" }}
+                        onClick={() => setOpenConfirm(false)}
                     >
                         Cerrar
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            {isLoading ?
-                <div className="center-div" style={{ marginTop:"30px" }}>
-                    <CircularProgress color="secondary" size="5rem" className="center-div" style={{ marginTop:"70px" }} />
-                </div>
-            :
-
-                <>
-                
-                {categorias.length == 0 ?
-
-            
-                    <Typography variant="h5" className="center-div" style={{ marginTop:"30px" }}>No se encontraron categorías</Typography>
-
-                :
-                
-                    <>
-                    <div className="datos-tabla">
-
-                        <TableContainer className="listado-categorias" component={Paper}>
-                            <Table aria-label="simple table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Nombre</TableCell>
-                                        <TableCell align="center">Opción</TableCell>
+            {isLoading ? (
+                <Grid container justifyContent="center" sx={{ mt: 5 }}>
+                    <CircularProgress color="secondary" size={50} />
+                </Grid>
+            ) : categorias.length === 0 ? (
+                <Typography variant="h6" align="center" sx={{ mt: 3 }}>
+                    No se encontraron categorías
+                </Typography>
+            ) : (
+                <div className={(isMobile ? "" : "datos-tabla")}>
+                    <TableContainer component={Paper} sx={{ mt: 2 }} className={(isMobile ? "" : "listado-categorias")}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Nombre</TableCell>
+                                    <TableCell align="center">Opción</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {categorias.map((categoria) => (
+                                    <TableRow key={categoria.id}>
+                                        <TableCell>{categoria.nombre}</TableCell>
+                                        <TableCell align="center">
+                                            <IconButton onClick={() => handleEditCategoria(categoria.id)}>
+                                                <EditIcon sx={{ color: "text.primary" }} />
+                                            </IconButton>
+                                            <IconButton onClick={() => handleDeleteCategoria(categoria.id)}>
+                                                <DeleteIcon sx={{ color: "text.primary" }} />
+                                            </IconButton>
+                                        </TableCell>
                                     </TableRow>
-                                </TableHead>
-                                <TableBody>
-
-                                    {categorias.map((categoria: Categoria) => (
-                                        <TableRow
-                                            key={categoria.id}
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        >
-                                            <TableCell component="th" scope="row">
-                                                {categoria.nombre}
-                                            </TableCell>
-                                            <TableCell align="center">
-
-                                                <IconButton onClick={() => handleEditCategoria(categoria.id)}>
-                                                    <EditIcon />
-                                                </IconButton>
-
-                                                <IconButton onClick={() => handleDeleteCategoria(categoria.id)}>
-                                                    <DeleteIcon />
-                                                </IconButton>
-
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                        </div>
-                        <div className="paginas-categorias" style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-                            <Typography className="left-categorias" style={{ marginTop: "20px" }}>
-                                Página {paginationData.actual} / {paginationData.paginas}
-                            </Typography>
-                            <div className="right-categorias">
-                                <ButtonGroup variant="contained" aria-label="Basic button group">
-                                    <IconButton disabled={paginationData.actual == 1} onClick={handleClickAtrasTodo}>
-                                        <KeyboardDoubleArrowLeftIcon sx={{ fontSize: 50 }} />
-                                    </IconButton>
-                                    <IconButton disabled={paginationData.actual == 1} onClick={handleClickAtras}>
-                                        <KeyboardArrowLeftIcon sx={{ fontSize: 50 }} />
-                                    </IconButton>
-                                    <IconButton disabled={paginationData.actual == paginationData.paginas} onClick={handleClickSiguiente}>
-                                        <KeyboardArrowRightIcon sx={{ fontSize: 50 }} />
-                                    </IconButton>
-                                    <IconButton disabled={paginationData.actual == paginationData.paginas} onClick={handleClickSiguienteTodo}>
-                                        <KeyboardDoubleArrowRightIcon sx={{ fontSize: 50 }} />
-                                    </IconButton>
-                                </ButtonGroup>
-                            </div>
-                        </div>
-                        </>
-                }
-
-                </>
-                
-            }
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <Grid container justifyContent="space-between" alignItems="center" sx={{ mt: 5 }}>
+                        <Typography>Página {paginationData.actual} / {paginationData.paginas}</Typography>
+                        <ButtonGroup variant="contained">
+                            <IconButton disabled={paginationData.actual == 1} onClick={handleClickAtrasTodo}>
+                                <KeyboardDoubleArrowLeftIcon sx={{ color: "text.primary" }} fontSize="large" />
+                            </IconButton>
+                            <IconButton disabled={paginationData.actual == 1} onClick={handleClickAtras}>
+                                <KeyboardArrowLeftIcon sx={{ color: "text.primary" }} fontSize="large" />
+                            </IconButton>
+                            <IconButton disabled={paginationData.actual == paginationData.paginas} onClick={handleClickSiguiente}>
+                                <KeyboardArrowRightIcon sx={{ color: "text.primary" }} fontSize="large" />
+                            </IconButton>
+                            <IconButton disabled={paginationData.actual == paginationData.paginas} onClick={handleClickSiguienteTodo}>
+                                <KeyboardDoubleArrowRightIcon sx={{ color: "text.primary" }} fontSize="large" />
+                            </IconButton>
+                        </ButtonGroup>
+                    </Grid>
+                </div>
+            )}
 
         </LayoutAdmin>
     );

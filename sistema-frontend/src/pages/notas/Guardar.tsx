@@ -1,7 +1,7 @@
 import LayoutAdmin from "@layouts/LayoutAdmin";
 import React, { useRef, useState, useEffect } from "react";
 
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, useMediaQuery } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -50,6 +50,11 @@ import {
     useUpdateNotaMutation,
 } from "@store/api/apiNotas";
 
+import { RootState } from "@customTypes/redux/global";
+import { useSelector, useDispatch } from "react-redux";
+import { changeNotePage } from "@/store/reducers/paginationSlice";
+import { toastRedirect } from "@/utils/toastRedirect";
+
 const CustomPaper = (props: any) => {
     return <Paper sx={{ backgroundColor: "#282828" }} elevation={8} {...props} />;
 };
@@ -60,25 +65,29 @@ const GuardarNota = () => {
 
     let { id } = useParams();
 
-    const { data: dataCategorias} = useGetCategoriasQuery({});
+    const { data: dataCategorias } = useGetCategoriasQuery({});
 
     const categorias: Categoria[] = dataCategorias?.categorias ? dataCategorias?.categorias : [];
 
-    const [es_favorita, setEsFavorita] = useState(false); 
+    const [es_favorita, setEsFavorita] = useState(false);
     const [contenidoEditor, setContenidoEditor] = useState("");
 
     const { data: dataNota, isLoading } = useGetNotaQuery(id ? id : 0);
 
-    const [createNota, { isLoading: isLoadingCreate } ] = useCreateNotaMutation();
-    const [updateNota, { isLoading: isLoadingUpdate } ] = useUpdateNotaMutation();
+    const [createNota, { isLoading: isLoadingCreate }] = useCreateNotaMutation();
+    const [updateNota, { isLoading: isLoadingUpdate }] = useUpdateNotaMutation();
 
     const [uuid, setUuid] = useState(uuidv4());
 
     const [disabled, setDisabled] = useState(false);
 
+    const dispatch = useDispatch();
+
+    const pagination: any = useSelector((state: RootState) => state.pagination);
+
     useEffect(() => {
-    
-        if(dataNota && id != null && Number(id) > 0) {
+
+        if (dataNota && id != null && Number(id) > 0) {
 
             const nota = dataNota.nota;
 
@@ -107,7 +116,7 @@ const GuardarNota = () => {
             setUuid(nota.uuid);
 
         }
-    
+
     }, [dataNota, id]);
 
     const handleClickGuardarNota: SubmitHandler<Nota> = (data) => {
@@ -116,13 +125,13 @@ const GuardarNota = () => {
 
         const categorias_seleccionadas = data.categorias;
 
-        categorias_seleccionadas.forEach(function(categoria_item) {
+        categorias_seleccionadas.forEach(function (categoria_item) {
             categorias_id.push(categoria_item.id);
         });
-    
+
         var contenido = rteRef.current?.editor?.getHTML();
 
-        if(contenido == "<p></p>") {
+        if (contenido == "<p></p>") {
             contenido = "<p>" + data.titulo + "</p>";
         }
 
@@ -130,10 +139,10 @@ const GuardarNota = () => {
 
         const fecha_expiracion = data.fecha_expiracion ? data.fecha_expiracion?.format("YYYY-MM-DD") : null;
 
-        if(id == null || Number(id) == 0) {
-        
+        if (id == null || Number(id) == 0) {
+
             const datosForm = {
-                "titulo" : data.titulo,
+                "titulo": data.titulo,
                 "contenido": contenido,
                 "categorias": categorias_id,
                 "favorita": es_favorita_bd,
@@ -142,36 +151,35 @@ const GuardarNota = () => {
             };
 
             createNota(datosForm)
-            .unwrap()
-            .then((payload: any) => {
+                .unwrap()
+                .then((payload: any) => {
 
-                const estado = payload.estado;
-                const mensaje = payload.mensaje;
+                    const estado = payload.estado;
+                    const mensaje = payload.mensaje;
 
-                if (estado == 1) {
-                    toast.success(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
+                    if (estado == 1) {
 
-                    setDisabled(true);
+                        setDisabled(true);
 
-                    setTimeout(() => {
-                        navigate("/notas");
-                    }, Number(import.meta.env.VITE_TIMEOUT_REDIRECT));
+                        dispatch(changeNotePage({ page: 1 }));
 
-                } else {
-                    toast.warning(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-                }
+                        toastRedirect(mensaje, navigate, "/notas", "success", Number(import.meta.env.VITE_TIMEOUT_REDIRECT));
 
-            })
-            .catch((error: any) => {  
-                console.log('rejected', error);
-                toast.error(String(import.meta.env.VITE_ERROR_AXIOS), {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-            });
+                    } else {
+                        toast.warning(mensaje, { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                    }
+
+                })
+                .catch((error: any) => {
+                    console.log('rejected', error);
+                    toast.error(String(import.meta.env.VITE_ERROR_AXIOS), { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                });
 
         } else {
-        
+
             const datosForm = {
                 "id": id,
-                "titulo" : data.titulo,
+                "titulo": data.titulo,
                 "contenido": contenido,
                 "categorias": categorias_id,
                 "favorita": es_favorita_bd,
@@ -180,38 +188,35 @@ const GuardarNota = () => {
             };
 
             updateNota(datosForm)
-            .unwrap()
-            .then((payload: any) => {
+                .unwrap()
+                .then((payload: any) => {
 
-                const estado = payload.estado;
-                const mensaje = payload.mensaje;
+                    const estado = payload.estado;
+                    const mensaje = payload.mensaje;
 
-                if (estado == 1) {
-                    toast.success(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
+                    if (estado == 1) {
 
-                    setDisabled(true);
+                        setDisabled(true);
 
-                    setTimeout(() => {
-                        navigate("/notas");
-                    }, Number(import.meta.env.VITE_TIMEOUT_REDIRECT));
+                        toastRedirect(mensaje, navigate, "/notas", "success", Number(import.meta.env.VITE_TIMEOUT_REDIRECT));
 
-                } else {
-                    toast.warning(mensaje, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-                }
+                    } else {
+                        toast.warning(mensaje, { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                    }
 
-            })
-            .catch((error: any) => {  
-                console.log('rejected', error);
-                toast.error(String(import.meta.env.VITE_ERROR_AXIOS), {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-            });
+                })
+                .catch((error: any) => {
+                    console.log('rejected', error);
+                    toast.error(String(import.meta.env.VITE_ERROR_AXIOS), { autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST) });
+                });
 
         }
-                
+
     };
 
-    const { register : registerNota, handleSubmit : handleSubmitNota, formState: { errors : errorsNota }, control : controlNota, setValue : setValueNota, clearErrors: cleanErrorsNota, getValues : getValueNota, reset: resetNota } = useForm<Nota>({
-        defaultValues: { 
-            titulo : "",
+    const { register: registerNota, handleSubmit: handleSubmitNota, formState: { errors: errorsNota }, control: controlNota, setValue: setValueNota, clearErrors: cleanErrorsNota, getValues: getValueNota, reset: resetNota } = useForm<Nota>({
+        defaultValues: {
+            titulo: "",
             categorias: [],
             fecha_expiracion: null as Dayjs | null
         }
@@ -221,36 +226,59 @@ const GuardarNota = () => {
 
     const cambiarEstadoFavorita = (event: any) => {
         setEsFavorita(event.target.checked);
-    }
+    };
 
-    return(
+    const handleClickReturn = () => {
+        navigate("/notas");
+    };
+
+    const isMobile = useMediaQuery("(max-width:600px)");
+
+    return (
         <LayoutAdmin>
 
-            <div className="contenedor">
-                <Card style={{ paddingBottom: 20 }}>
+            <div className="contenedor" style={{ padding: isMobile ? "10px" : "20px" }}>
+                <Card sx={{ borderRadius: 8, p: isMobile ? 2 : 3, pb: 2, boxShadow: 3 }}>
 
                     <form onSubmit={handleSubmitNota(handleClickGuardarNota)} noValidate>
                         <CardContent>
-                            <Typography gutterBottom variant="h4" component="div" align="center">
+                            <Typography gutterBottom variant={isMobile ? "h5" : "h4"} component="div" align="center">
                                 Gestión de nota
                             </Typography>
-                            <TextField 
+                            <TextField
                                 {...registerNota("titulo", { required: true })}
                                 label="Título"
                                 variant="outlined"
                                 color="primary"
                                 type="text"
-                                sx={{ mt: 3, mb: 3 }}
+                                sx={{
+                                    mt: 2,
+                                    mb: 2,
+                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                }}
                                 fullWidth
                                 InputLabelProps={{ shrink: true }}
-                                error={ !!errorsNota.titulo }
+                                error={!!errorsNota.titulo}
                             />
 
-                            <div>
+                            <div
+                                style={{
+                                    borderRadius: "12px",
+                                    overflow: "hidden",
+                                }}
+                            >
                                 <Editor
                                     ref={rteRef}
                                     content={contenidoEditor}
                                     uuid={uuid}
+                                    className="editor"
+                                    style={{
+                                        border: "1px solid #ccc",
+                                        borderRadius: "12px",
+                                        padding: "10px",
+                                        minHeight: "150px",
+                                        outline: "none",
+                                    }}
                                 />
                             </div>
 
@@ -268,38 +296,38 @@ const GuardarNota = () => {
                                         isOptionEqualToValue={(option, value) => option?.id === value?.id}
                                         onChange={(_, data) => onChange(data)}
                                         sx={{ mt: 3, mb: 3 }}
-                                        limitTags={2}
+                                        limitTags={isMobile ? 1 : 2}
                                         PaperComponent={CustomPaper}
                                         renderOption={(props, option, { selected }) => {
                                             const { key, ...optionProps } = props;
                                             return (
-                                              <li key={key} {...optionProps}>
-                                                <Checkbox
-                                                  icon={icon}
-                                                  checkedIcon={checkedIcon}
-                                                  style={{ marginRight: 8 }}
-                                                  checked={selected}
-                                                />
-                                                {option?.nombre}
-                                              </li>
+                                                <li key={key} {...optionProps}>
+                                                    <Checkbox
+                                                        icon={icon}
+                                                        checkedIcon={checkedIcon}
+                                                        style={{ marginRight: 8 }}
+                                                        checked={selected}
+                                                    />
+                                                    {option?.nombre}
+                                                </li>
                                             );
                                         }}
                                         renderTags={(value, getTagProps) => {
                                             const numTags = value.length;
-                                            const limitTags = 2;
-                                    
+                                            const limitTags = isMobile ? 1 : 2;
+
                                             return (
-                                              <>
-                                                {value.slice(0, limitTags).map((option, index) => (
-                                                  <Chip
-                                                    {...getTagProps({ index })}
-                                                    key={index}
-                                                    label={option?.nombre}
-                                                  />
-                                                ))}
-                                    
-                                                {numTags > limitTags && ` +${numTags - limitTags}`}
-                                              </>
+                                                <>
+                                                    {value.slice(0, limitTags).map((option, index) => (
+                                                        <Chip
+                                                            {...getTagProps({ index })}
+                                                            key={index}
+                                                            label={option?.nombre}
+                                                        />
+                                                    ))}
+
+                                                    {numTags > limitTags && ` +${numTags - limitTags}`}
+                                                </>
                                             );
                                         }}
                                         renderInput={(params) => (
@@ -311,6 +339,9 @@ const GuardarNota = () => {
                                                 variant="outlined"
                                                 error={!!errorsNota?.categorias}
                                                 label="Categorías"
+                                                sx={{
+                                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" }
+                                                }}
                                             />
                                         )}
                                     />
@@ -318,7 +349,7 @@ const GuardarNota = () => {
                             />
 
                             <div style={{ marginBottom: "20px" }}>
-                                <FormControlLabel control={<Checkbox checked={es_favorita} onChange={cambiarEstadoFavorita}  />} label="Es favorita" />
+                                <FormControlLabel control={<Checkbox checked={es_favorita} onChange={cambiarEstadoFavorita} />} label="Es favorita" />
                             </div>
 
                             <Controller
@@ -328,29 +359,43 @@ const GuardarNota = () => {
                                 render={({ field }) => {
                                     return (
                                         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-                                        <DatePicker
-                                            {...field}
-                                            format="DD/MM/YYYY"
-                                            label="Fecha de expiración"
-                                            value={ field.value ? field.value : null}
-                                            inputRef={field.ref}
-                                            onChange={(date) => {
-                                                field.onChange(date);
-                                            }}
-                                            slotProps={{
-                                                textField: {
-                                                    error: !!errorsNota.fecha_expiracion,
-                                                },
-                                            }}
-                                        />
+                                            <DatePicker
+                                                {...field}
+                                                format="DD/MM/YYYY"
+                                                label="Fecha de expiración"
+                                                value={field.value ? field.value : null}
+                                                inputRef={field.ref}
+                                                onChange={(date) => {
+                                                    field.onChange(date);
+                                                }}
+                                                slotProps={{
+                                                    textField: {
+                                                        error: !!errorsNota.fecha_expiracion,
+                                                        sx: {
+                                                            "& .MuiOutlinedInput-root": {
+                                                                borderRadius: "12px"
+                                                            }
+                                                        }
+                                                    },
+                                                }}
+                                            />
                                         </LocalizationProvider>
                                     );
                                 }}
                             />
-                                    
+
                         </CardContent>
-                        <CardActions sx={{ mt: 3 }} className="center-div">
-                            <LoadingButton 
+                        <CardActions
+                            sx={{
+                                mt: 3,
+                                display: "flex",
+                                flexDirection: isMobile ? "column" : "row",
+                                alignItems: "center",
+                                gap: isMobile ? 2 : 1,
+                            }}
+                            className="center-div"
+                        >
+                            <LoadingButton
                                 startIcon={<SaveIcon />}
                                 loading={isLoadingCreate || isLoadingUpdate}
                                 loadingPosition="start"
@@ -358,15 +403,17 @@ const GuardarNota = () => {
                                 disabled={disabled}
                                 color="primary"
                                 type="submit"
+                                sx={{ borderRadius: "12px", width: isMobile ? "100%" : "auto" }}
                             >
                                 Guardar
                             </LoadingButton>
-                            <Button 
+                            <Button
                                 variant="contained"
                                 color="primary"
                                 startIcon={<ArrowBackIcon />}
                                 disabled={disabled}
-                                onClick={() => navigate("/notas") }
+                                sx={{ borderRadius: "12px", width: isMobile ? "100%" : "auto" }}
+                                onClick={() => handleClickReturn()}
                             >
                                 Volver
                             </Button>

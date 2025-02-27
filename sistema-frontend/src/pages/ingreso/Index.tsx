@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@layouts/Layout";
 import { TextField } from "@mui/material";
 import Card from "@mui/material/Card";
@@ -28,6 +28,8 @@ import {
 import { apiCategorias } from "@store/api/apiCategorias";
 import { apiNotas } from "@store/api/apiNotas";
 import { apiCuenta } from "@store/api/apiCuenta";
+
+import { toastRedirect } from "@utils/toastRedirect";
 
 const Ingreso = () => {
 
@@ -65,13 +67,9 @@ const Ingreso = () => {
                     "username": data.usuario
                 }));
 
-                toast.success("Bienvenido al sistema", {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-
                 setDisabled(true);
 
-                setTimeout(() => {
-                    navigate("/");
-                }, Number(import.meta.env.VITE_TIMEOUT_REDIRECT));
+                toastRedirect("Bienvenido al sistema", navigate, "/", "success", Number(import.meta.env.VITE_TIMEOUT_REDIRECT));
 
             } else {
                 toast.warning(message, {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
@@ -95,7 +93,7 @@ const Ingreso = () => {
     return(
         <Layout>
             <div className="ingreso">
-                <Card style={{ paddingBottom: 10 }}>
+                <Card sx={{ borderRadius: 8, p: 2, pb: 2, boxShadow: 3 }}>
                     <form onSubmit={handleSubmitIngreso(handleClickIngreso)} noValidate>
                         <CardContent>
                             <Typography gutterBottom variant="h4" component="div" align="center" style={{ paddingBottom: 10 }}>
@@ -107,9 +105,12 @@ const Ingreso = () => {
                                 variant="outlined"
                                 color="primary"
                                 type="text"
-                                sx={{ mb: 3 }}
                                 fullWidth
                                 error={ !!errorsIngreso.usuario }
+                                sx={{
+                                    mb: 3,
+                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" }
+                                }}
                             />
                             <TextField 
                                 {...registerIngreso("clave", { required: true })}
@@ -118,7 +119,10 @@ const Ingreso = () => {
                                 color="primary"
                                 type="password"
                                 fullWidth
-                                sx={{ mb: 1 }}
+                                sx={{
+                                    mb: 1,
+                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" }
+                                }}
                                 error={ !!errorsIngreso.clave }
                             />
                         </CardContent>
@@ -131,6 +135,7 @@ const Ingreso = () => {
                                 color="primary"
                                 type="submit"
                                 disabled={disabled}
+                                sx={{ borderRadius: "12px" }}
                             >
                                 Ingresar
                             </LoadingButton>

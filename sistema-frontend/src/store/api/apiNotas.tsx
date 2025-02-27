@@ -24,7 +24,7 @@ export const apiNotas = createApi({
       }
     }),
     getNotasPagina: builder.query({
-      query: ({pagina, titulo, categorias, favorita, cantidad = null}) => ({ 
+      query: ({pagina, titulo, categorias, favorita, cantidad}) => ({ 
         url : "/notas/pagina/" + pagina,
         method: "POST",
         body: { titulo: titulo, categorias: categorias, favorita: favorita, cantidad: cantidad } 

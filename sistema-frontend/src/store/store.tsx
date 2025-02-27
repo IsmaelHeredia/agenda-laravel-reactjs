@@ -8,6 +8,7 @@ import { apiCuenta } from "@store/api/apiCuenta";
 import themesSliceReducer from "@store/reducers/themesSlice";
 import filtersSliceReducer from "@store/reducers/filtersSlice";
 import authSliceReducer from "@store/reducers/authSlice";
+import paginationSliceReducer from "@store/reducers/paginationSlice";
 
 import {
   persistStore,
@@ -28,14 +29,21 @@ const persistConfig = {
   storage,
 }
 
+const themesPersistConfig = {
+  key: "themes",
+  storage,
+  blacklist: ["theme_style"],
+};
+
 const rootReducer = combineReducers({
   [apiIngreso.reducerPath]: apiIngreso.reducer,
   [apiCategorias.reducerPath]: apiCategorias.reducer,
   [apiNotas.reducerPath]: apiNotas.reducer,
   [apiCuenta.reducerPath]: apiCuenta.reducer,
-  themes: themesSliceReducer,
+  themes: persistReducer(themesPersistConfig, themesSliceReducer),
   filters: filtersSliceReducer,
   auth: authSliceReducer,
+  pagination: paginationSliceReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -59,4 +67,5 @@ setupListeners(store.dispatch);
 
 const persistor = persistStore(store)
 
+export type RootState = ReturnType<typeof store.getState>;
 export {store, persistor};

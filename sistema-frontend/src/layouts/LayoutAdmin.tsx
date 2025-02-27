@@ -1,172 +1,175 @@
-import * as React from "react";
+import { ReactNode, useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-
-import MenuIcon from "@mui/icons-material/Menu";
-import LogoutIcon from "@mui/icons-material/Logout";
+import { useDispatch, useSelector } from "react-redux";
+import { changeMode, selectTheme } from "@store/reducers/themesSlice";
+import {
+    AppBar,
+    Toolbar,
+    IconButton,
+    Drawer,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Tooltip,
+    Typography,
+} from "@mui/material";
 import WbSunnyIcon from "@mui/icons-material/WbSunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
 import CategoryIcon from "@mui/icons-material/Category";
 import NoteIcon from "@mui/icons-material/Note";
 import HomeIcon from "@mui/icons-material/Home";
+import PageTitle from "@components/PageTitle";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { setAuth } from "@/store/reducers/authSlice";
+import { RootState } from "@/store/store";
+
+import About from "@components/About";
+import Chart from "@components/Chart";
+import Account from "@components/Account";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { toast } from "react-toastify";
 
-import Chart from "@components/Chart";
-import Account from "@components/Account";
-import About from "@components/About";
+import { toastRedirect } from "@utils/toastRedirect";
 
-import { useNavigate } from "react-router-dom";
-import PageTitle from "@components/PageTitle";
+const drawerWidth = 240;
 
-import { RootState } from "@customTypes/redux/global";
-import { useSelector, useDispatch } from "react-redux";
-import { changeMode } from "@store/reducers/themesSlice";
-import { setAuth } from "@store/reducers/authSlice";
+interface LayoutAdminProps {
+    children: ReactNode;
+}
 
-import { theme as light_gruvbox } from "@skins/light_gruvbox";
-import { theme as dark_gruvbox } from "@skins/dark_gruvbox";
-
-const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
-
+const LayoutAdmin = ({ children }: LayoutAdminProps) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const location = useLocation();
+    const mode = useSelector((state: RootState) => state.themes.mode);
+    const theme = useSelector(selectTheme);
+    const [open, setOpen] = useState(false);
 
     const handleClickLogOut = () => {
 
-        toast.success("La sesión fue cerrada", {autoClose: Number(import.meta.env.VITE_TIMEOUT_TOAST)});
-    
         dispatch(setAuth({
             "token": "",
             "username": ""
         }));
-    
-        setTimeout(() => {
-            navigate("/ingreso");
-        }, Number(import.meta.env.VITE_TIMEOUT_REDIRECT));
+
+        toastRedirect("La sesión fue cerrada", navigate, "/ingreso", "success", Number(import.meta.env.VITE_TIMEOUT_REDIRECT));
 
     }
 
-    const mode = useSelector((state: RootState) => state.themes.mode);
-    
-    const dispatch = useDispatch();
+    const toggleDrawer = () => setOpen(!open);
 
-    const handleClickSetLight = () => {
-        dispatch(changeMode({ mode: "light"}));
-    };
-
-    const handleClickSetDark = () => {
-        dispatch(changeMode({ mode: "dark"}));
-    };
-
-    return(
-        <>
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
             <PageTitle title="Agenda Fénix" />
-            <ThemeProvider theme={(mode == "light" ? light_gruvbox : dark_gruvbox)}>
-                <CssBaseline />
-                <AppBar position="fixed" enableColorOnDark>
 
-                    <Toolbar color="primary">
+            <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
+                <Toolbar>
+                    <IconButton color="inherit" edge="start" onClick={toggleDrawer}>
+                        <MenuIcon />
+                    </IconButton>
 
-                        <IconButton
-                            size="large"
-                            edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            sx={{ mr: 2 }}
-                            onClick={() => navigate("/") }
-                        >
-                            <MenuIcon />
-                        </IconButton>
+                    <Typography
+                        variant={mode === "light" ? "h6" : "h5"}
+                        component="div"
+                        sx={{
+                            marginLeft: 1,
+                            color: mode === "light" ? "#253600" : "#DDC7A1",
+                        }}
+                    >
+                        Agenda Fénix
+                    </Typography>
 
-                        <Typography 
-                            variant={
-                                (mode == "light") ? "h6" : "h5"
-                            } 
-                            component="div"
+                    <div style={{ flexGrow: 1 }} />
+
+                    <IconButton sx={{ color: "text.primary" }} onClick={() => dispatch(changeMode({ mode: mode === "light" ? "dark" : "light" }))}>
+                        <Tooltip title={mode === "light" ? "Modo oscuro" : "Modo claro"}>
+                            {mode === "light" ? <DarkModeIcon /> : <WbSunnyIcon />}
+                        </Tooltip>
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+
+            <Drawer
+                variant="permanent"
+                sx={{
+                    width: open ? drawerWidth : 60,
+                    flexShrink: 0,
+                    "& .MuiDrawer-paper": {
+                        width: open ? drawerWidth : 60,
+                        transition: "width 0.3s",
+                        overflowX: "hidden",
+                        backgroundColor: theme.palette.background.default,
+                        color: theme.palette.text.primary,
+                    },
+                }}
+            >
+                <Toolbar />
+                <List>
+                    {[{ url: "/", text: "Inicio", icon: <HomeIcon /> },
+                    { url: "/categorias", text: "Categorias", icon: <CategoryIcon /> },
+                    { url: "/notas", text: "Notas", icon: <NoteIcon /> }].map((item, index) => (
+                        <ListItem
+                            button
+                            component="a"
+                            href={item.url}
+                            key={index}
                             sx={{
-                                flexGrow: 1,
-                                color: (mode == "light") ? "#253600" : "#DDC7A1" 
+                                backgroundColor: location.pathname === item.url ? theme.palette.action.selected : "inherit",
+                                "&:hover": { backgroundColor: theme.palette.action.hover },
                             }}
-                            >
-                            Agenda Fénix
-                        </Typography>
+                        >
+                            <ListItemIcon sx={{ color: "text.primary" }}>{item.icon}</ListItemIcon>
+                            {open && <ListItemText primary={item.text} sx={{ color: "text.primary" }} />}
+                        </ListItem>
+                    ))}
+                    <Chart />
+                    <Account />
+                    <About />
+                    <ListItem
+                        button
+                        sx={{
+                            backgroundColor: "inherit",
+                            "&:hover": { backgroundColor: theme.palette.action.hover },
+                        }}
+                        onClick={() => handleClickLogOut()}
+                    >
+                        <ListItemIcon sx={{ color: "text.primary" }}>
+                            <LogoutIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Salir" sx={{ color: "text.primary" }} />
+                    </ListItem>
+                </List>
+            </Drawer>
 
-                        <IconButton onClick={() => navigate("/") }>
-                            <Tooltip title="Ir a inicio">
-                                <HomeIcon />
-                            </Tooltip>
-                        </IconButton>
-
-                        <IconButton onClick={() => navigate("/categorias") }>
-                            <Tooltip title="Ir a categorías">
-                                <CategoryIcon />
-                            </Tooltip>
-                        </IconButton>
-
-                        <IconButton onClick={() => navigate("/notas") }>
-                            <Tooltip title="Ir a notas">
-                                <NoteIcon />
-                            </Tooltip>
-                        </IconButton>
-
-                        <Chart />
-
-                        <About />
-
-                        <Account />
-
-                        <IconButton onClick={ handleClickLogOut }>
-                            <Tooltip title="Salir">
-                                <LogoutIcon />
-                            </Tooltip>
-                        </IconButton>
-                        
-                    </Toolbar>
-
-                </AppBar>
+            <main style={{ marginLeft: open ? drawerWidth : 60, padding: "20px", transition: "margin-left 0.3s", overflowX: "hidden" }}>
+                <Toolbar />
                 {children}
-                <div className="botones-theme">
-                    {mode == "dark" &&
-                        <IconButton onClick={ handleClickSetLight }>
-                            <Tooltip title="Cambiar a modo claro">
-                                <WbSunnyIcon />
-                            </Tooltip>
-                        </IconButton>
-                    }
-                    {
-                    mode == "light" &&
-                        <IconButton onClick={ handleClickSetDark }>
-                            <Tooltip title="Cambiar a modo oscuro">
-                                <DarkModeIcon />
-                            </Tooltip>
-                        </IconButton>
-                    }
-                </div>
-                <div style={{ marginTop: "15px" }}>
-                    <ToastContainer
-                        position="bottom-center"
-                        autoClose={2000}
-                        hideProgressBar={false}
-                        newestOnTop={false}
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme= { mode == "light" ? "light" : "dark" }
-                    />
-                </div>
-            </ThemeProvider>
-        </>
-    );
+            </main>
 
+            <div style={{ marginTop: "15px" }}>
+                <ToastContainer
+                    position="bottom-center"
+                    autoClose={2000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme={mode == "light" ? "light" : "dark"}
+                />
+            </div>
+
+        </ThemeProvider>
+    );
 };
 
 export default LayoutAdmin;

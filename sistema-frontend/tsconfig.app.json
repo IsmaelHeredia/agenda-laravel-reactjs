@@ -20,19 +20,21 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["./src/components/*"],
-      "@pages/*": ["./src/pages/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@layouts/*": ["./src/layouts/*"],
-      "@customTypes/*": ["./src/types/*"],
-      "@reduxConfig/*": ["./src/redux/*"],
-      "@store/*": ["./src/store/*"],
-      "@skins/*": ["./src/skins/*"],
-      "@editor/*": ["./src/editor/*"],
+      "@/*": ["*"],
+      "@components/*": ["components/*"],
+      "@pages/*": ["pages/*"],
+      "@utils/*": ["utils/*"],
+      "@layouts/*": ["layouts/*"],
+      "@customTypes/*": ["types/*"],
+      "@reduxConfig/*": ["redux/*"],
+      "@store/*": ["store/*"],
+      "@skins/*": ["skins/*"],
+      "@editor/*": ["editor/*"]
     }
     
   },
   "include": ["./src/*"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

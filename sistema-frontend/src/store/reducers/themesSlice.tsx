@@ -1,22 +1,34 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
+import { RootState } from "@store/store";
+import { getTheme } from "@skins/theme";
 
-interface Props {
-    mode: string;
+interface ThemeState {
+  mode: "light" | "dark";
+  theme_mode: number;
 }
 
-const initialState: Props = {
-    mode: "dark",
+const initialState: ThemeState = {
+  mode: "light",
+  theme_mode: 1,
 };
 
 const themesSlice = createSlice({
   name: "themes",
   initialState,
   reducers: {
-    changeMode: (state, action: PayloadAction<any>) => {
-        state.mode = action.payload.mode;
+    changeMode: (state, action: PayloadAction<{ mode: "light" | "dark" }>) => {
+      state.mode = action.payload.mode;
+    },
+    setThemeMode: (state, action: PayloadAction<number>) => {
+      state.theme_mode = action.payload;
     },
   },
 });
 
-export const { changeMode } = themesSlice.actions;
+export const selectTheme = createSelector(
+  (state: RootState) => state.themes.mode,
+  (mode) => getTheme(mode)
+);
+
+export const { changeMode, setThemeMode } = themesSlice.actions;
 export default themesSlice.reducer;

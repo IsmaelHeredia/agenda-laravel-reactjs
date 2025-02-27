@@ -1,17 +1,9 @@
-import * as React from "react";
-import { useState } from "react";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
+import React, { useState } from 'react';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, ListItem, ListItemIcon, ListItemText, Slide } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { useTheme, useMediaQuery } from '@mui/material';
 import InfoIcon from "@mui/icons-material/Info";
-import CloseIcon from "@mui/icons-material/Close";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
+import { TransitionProps } from '@mui/material/transitions';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -22,60 +14,71 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />
 });
 
-const About = () => {
+function About() {
+  const [open, setOpen] = useState(false);
 
-    const [open, setOpen] = useState(false);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-    const handleClickOpen = () => {
-      setOpen(true);
-    };
-  
-    const handleClose = (event: any, reason: string) => {
-      if (reason && reason === "backdropClick") {
-        return;
-      }
-      setOpen(false);
-    };
+  const handleClose = (event: any, reason: string) => {
+    if (reason && reason === "backdropClick") {
+      return;
+    }
+    setOpen(false);
+  };
 
-    return(
-        <>
-            <IconButton onClick={handleClickOpen}>
-                <Tooltip title="About">
-                  <InfoIcon />
-                </Tooltip>
-            </IconButton>
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                TransitionComponent={Transition}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                className="center"
-                disableEscapeKeyDown
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle>
-                    <Typography variant="h4" component="div">About</Typography>
-                </DialogTitle>
-                <DialogContent>
-                    <Typography sx={{ mb:1 }}>Nombre : Agenda Fénix</Typography>
-                    <Typography sx={{ mb:1 }}>Version : 1.0</Typography>
-                    <Typography>Autor : Ismael Heredia</Typography>                    
-                </DialogContent>
-                <DialogActions>
-                  <Button
-                    startIcon={<CloseIcon />}
-                    color="secondary"
-                    onClick={() => setOpen(false) }
-                  >
-                    Cerrar
-                  </Button>
-                </DialogActions>
-            </Dialog>
-        </>
-    );
+  return (
+    <div>
+      <ListItem
+        button
+        sx={{
+          backgroundColor: "inherit",
+          "&:hover": { backgroundColor: theme.palette.action.hover },
+        }}
+        onClick={() => setOpen(true)}
+      >
+        <ListItemIcon sx={{ color: "text.primary" }}>
+          <InfoIcon />
+        </ListItemIcon>
+        <ListItemText primary="About" sx={{ color: "text.primary" }} />
+      </ListItem>
 
-};
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        TransitionComponent={Transition}
+        className="center"
+        disableEscapeKeyDown
+        fullWidth
+        fullScreen={isSmallScreen}
+        maxWidth="sm"
+        sx={{ "& .MuiPaper-root": { borderRadius: isSmallScreen ? "0px" : "16px" } }}
+      >
+        <DialogTitle>
+          <Typography variant={isSmallScreen ? "h5" : "h4"} component="div">
+            About
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mb: 1 }}>Nombre: <strong>Agenda Fénix</strong></Typography>
+          <Typography sx={{ mb: 1 }}>Versión: <strong>1.0</strong></Typography>
+          <Typography>Autor: <strong>Ismael Heredia</strong></Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            startIcon={<CloseIcon />}
+            color="secondary"
+            onClick={() => setOpen(false)} // Cierra el modal
+            sx={{ px: 2, py: 1 }}
+          >
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
 
 export default About;

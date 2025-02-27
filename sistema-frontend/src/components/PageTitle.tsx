@@ -1,14 +1,11 @@
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
-const PageTitle = ({ title } : { title : any}) => {
-  const location = useLocation();
-
-  useEffect(() => {
-    document.title = title;
-  }, [location, title]);
-
-  return null;
+const PageTitle = ({ title }: { title: string }) => {
+    return (
+        <Helmet>
+            <title>{title}</title>
+        </Helmet>
+    );
 };
 
 export default PageTitle;

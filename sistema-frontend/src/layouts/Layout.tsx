@@ -13,63 +13,51 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 import { RootState } from "@customTypes/redux/global";
 import { useSelector, useDispatch } from "react-redux";
-import { changeMode } from "@store/reducers/themesSlice";
-
-import { theme as light_gruvbox } from "@skins/light_gruvbox";
-import { theme as dark_gruvbox } from "@skins/dark_gruvbox";
+import { changeMode, selectTheme } from "@store/reducers/themesSlice";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
- 
+
     const mode = useSelector((state: RootState) => state.themes.mode);
+    const theme = useSelector(selectTheme);
 
     const dispatch = useDispatch();
 
     const handleClickSetLight = () => {
-        dispatch(changeMode({ mode: "light"}));
+        dispatch(changeMode({ mode: "light" }));
     };
 
     const handleClickSetDark = () => {
-        dispatch(changeMode({ mode: "dark"}));
+        dispatch(changeMode({ mode: "dark" }));
     };
 
-    return(
+    return (
         <>
             <PageTitle title="Ingreso" />
-            <ThemeProvider theme={(mode == "light" ? light_gruvbox : dark_gruvbox)}>
+            <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <div className="ingreso">
                     {children}
                 </div>
                 <div className="botones-theme">
-                  {mode == "dark" &&
-                      <IconButton onClick={ handleClickSetLight }>
-                          <Tooltip title="Cambiar a modo claro">
-                            <WbSunnyIcon />
-                          </Tooltip>
-                      </IconButton>
-                  }
-                  {
-                  mode == "light" &&
-                      <IconButton onClick={ handleClickSetDark }>
-                          <Tooltip title="Cambiar a modo oscuro">
-                            <DarkModeIcon />
-                          </Tooltip>
-                      </IconButton>
-                  }
+                    <IconButton sx={{ color: "text.primary" }} onClick={() => dispatch(changeMode({ mode: mode === "light" ? "dark" : "light" }))}>
+                        <Tooltip title={mode === "light" ? "Modo oscuro" : "Modo claro"}>
+                            {mode === "light" ? <DarkModeIcon /> : <WbSunnyIcon />}
+                        </Tooltip>
+                    </IconButton>
                 </div>
                 <div>
-                  <ToastContainer
-                    position="bottom-center"
-                    autoClose={2000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                    theme= { mode == "light" ? "light" : "dark" }
-                  />
+                    <ToastContainer
+                        position="bottom-center"
+                        autoClose={2000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme={mode == "light" ? "light" : "dark"}
+                    />
                 </div>
             </ThemeProvider>
         </>
