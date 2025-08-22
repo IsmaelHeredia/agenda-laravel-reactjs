@@ -2,125 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Imagen;
-use App\Traits\RespuestaTrait;
+use App\Services\ImageService;
 use App\Http\Requests\GuardarImagenRequest;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\Http\Requests\ListarImagenesRequest;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
 
 class ImagenController extends Controller
 {
-    use RespuestaTrait;
+    protected $imageService;
 
-    public function listar(Request $request)
+    public function __construct(ImageService $imageService)
     {
-        $porUUID = $request->input('uuid');
-        
-        $resultado = Imagen::where('uuid', '%' . $porUUID . '%')
-                      ->orderBy('created_at', 'ASC')
-                      ->get();
-
-        return $this->success('Se envío listado de imágenes', $resultado);
+        $this->imageService = $imageService;
     }
 
-    public function cargar(string $id)
+    public function listar(ListarImagenesRequest $request): JsonResponse
     {
-        $imagen = Imagen::find($id);
-
-        if($imagen)
-        {
-            return $this->success('Se envío datos de la imagen', $imagen);
-        }
-        else
-        {
-            return $this->error('La imagen no existe');
-        }
+        $resultado = $this->imageService->listImages($request);
+        return response()->json([
+            'message' => 'Se envió el listado de las imágenes',
+            'data' => $resultado
+        ], Response::HTTP_OK);
     }
 
-    public function crear(GuardarImagenRequest $request)
+    public function cargar(string $id): JsonResponse
     {
-        $validated = $request->validated();
-
-        $imagen_contenido = $validated['base64'];
-
-        if (preg_match('/^data:image\/(\w+);base64,/', $imagen_contenido, $formato)) {
-
-            $imagen_contenido = substr($imagen_contenido, strpos($imagen_contenido, ',') + 1);
-            $formato = strtolower($formato[1]);
-        
-            if (!in_array($formato,['jpg','jpeg','gif','png'])) {
-                return $this->error('El formato de la imagen es incorrecto');
-            }
-
-            $imagen_contenido = str_replace(' ','+',$imagen_contenido);
-            $imagen_contenido = base64_decode($imagen_contenido);
-
-        }
-
-        $imagen_nuevo_nombre = Str::random(10) . '.jpg';
-    
-        Storage::disk('public')->put($imagen_nuevo_nombre, $imagen_contenido);
-
-        $imagen = new Imagen;
-
-        $imagen->uuid = $validated['uuid'];
-        $imagen->nombre_archivo = $imagen_nuevo_nombre; 
-        
-        $guardado = $imagen->save();
-
-        if($guardado)
-        {
-            return $this->success('La imagen fue creada', $imagen_nuevo_nombre);
-        }
-        else
-        {
-            return $this->error('Ocurrió un error creando la imagen');
-        }
+        $imagen = $this->imageService->getImageById($id);
+        return response()->json([
+            'message' => 'Se enviaron los datos de la imagen',
+            'data' => $imagen
+        ], Response::HTTP_OK);
     }
 
-    public function actualizar(GuardarImagenRequest $request, string $id)
+    public function crear(GuardarImagenRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-
-        $imagen = Imagen::find($id);
-
-        if(!$imagen)
-        {
-            return $this->error('La imagen no existe');
-        }
-
-        $imagen->uuid = $validated['uuid'];
-        $imagen->nombre_archivo = $validated['nombre_archivo']; 
-
-        $guardado = $imagen->save();
-
-        if($guardado)
-        {
-            return $this->success('La imagen fue actualizada');
-        }
-        else
-        {
-            return $this->error('Ocurrió un error actualizando la imagen');
-        }
+        $newFileName = $this->imageService->createImage($request);
+        return response()->json([
+            'message' => 'La imagen fue creada correctamente',
+            'data' => $newFileName
+        ], Response::HTTP_CREATED);
     }
 
-    public function borrar(string $id)
+    public function actualizar(GuardarImagenRequest $request, string $id): JsonResponse
     {
-        $imagen = Imagen::find($id);
+        $this->imageService->updateImage($request, $id);
+        return response()->json([
+            'message' => 'La imagen fue actualizada correctamente'
+        ], Response::HTTP_OK);
+    }
 
-        if(!$imagen)
-        {
-            return $this->error('La imagen no existe');
-        }
-
-        if($imagen->delete())
-        {
-            return $this->success('La imagen fue borrada');
-        }
-        else
-        {
-            return $this->error('Ocurrió un error borrando la imagen');
-        }
+    public function borrar(string $id): JsonResponse
+    {
+        $this->imageService->deleteImage($id);
+        return response()->json([
+            'message' => 'La imagen fue borrada correctamente'
+        ], Response::HTTP_NO_CONTENT);
     }
 }

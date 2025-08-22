@@ -2,50 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Usuario;
-use App\Traits\RespuestaTrait;
 use App\Http\Requests\CuentaRequest;
-
-use Illuminate\Support\Facades\Hash;
+use App\Services\AuthService;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
 
 class CuentaController extends Controller
 {
-    use RespuestaTrait;
+    protected $authService;
 
-    public function actualizarDatos(CuentaRequest $request)
+    public function __construct(AuthService $authService)
     {
-        $validated = $request->validated();
+        $this->authService = $authService;
+    }
 
-        $usuario = $validated['usuario'];
-        $nuevo_usuario = $validated['nuevo_usuario'];
-        $clave = $validated['clave'];
-        $nueva_clave = $validated['nueva_clave'];
+    public function actualizarDatos(CuentaRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        $userUpdated = $this->authService->actualizarDatos($request, $user);
 
-        $usuario_bd = Usuario::where('nombre', $usuario)->first();
-
-        if(!$usuario_bd)
-        {
-            return $this->error('El usuario no existe');
-        }
-
-        if (!Hash::check($clave, $usuario_bd->clave))
-        {
-            return $this->error('La clave es incorrecta');
-        }
-
-        $usuario_bd->nombre = $nuevo_usuario;
-        $usuario_bd->clave = Hash::make($nueva_clave);
-
-        $guardado = $usuario_bd->save();
-
-        if($guardado)
-        {
-            return $this->success('Los datos de la cuenta se actualizaron correctamente');
-        }
-        else
-        {
-            return $this->error('Ocurrió un error actualizando los datos');
-        }
+        return response()->json([
+            'message' => 'Los datos de la cuenta se actualizaron correctamente',
+            'user' => $userUpdated
+        ], Response::HTTP_OK);
     }
 }

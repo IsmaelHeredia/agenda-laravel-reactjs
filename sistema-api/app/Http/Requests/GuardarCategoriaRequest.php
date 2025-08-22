@@ -21,7 +21,9 @@ class GuardarCategoriaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nombre.required' => 'El nombre es obligatorio',
+            'nombre.required' => 'El nombre de la categoría es obligatorio',
+            'nombre.string' => 'El nombre de la categoría debe ser una cadena de texto',
+            'nombre.max' => 'El nombre de la categoría no debe exceder los :max caracteres',
         ];
     }
 }

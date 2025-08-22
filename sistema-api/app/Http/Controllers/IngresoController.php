@@ -2,72 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Usuario;
-use Illuminate\Support\Facades\Hash;
-use App\Traits\SeguridadTrait;
-use App\Traits\RespuestaTrait;
 use App\Http\Requests\IngresoRequest;
-
-use App\Models\Nota;
-use App\Models\Imagen;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+use App\Services\AuthService;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
 
 class IngresoController extends Controller
 {
-    use SeguridadTrait;
-    use RespuestaTrait;
+    protected $authService;
 
-    public function ingreso(IngresoRequest $request)
+    public function __construct(AuthService $authService)
     {
-        $validated = $request->validated();
-
-        $usuario = $validated['usuario'];
-        $clave = $validated['clave'];
-
-        $usuario_bd = Usuario::where('nombre', $usuario)->first();
-
-        if(!$usuario_bd)
-        {
-            return $this->error('El usuario no existe');
-        }
-
-        if (Hash::check($clave, $usuario_bd->clave))
-        {
-            $token = $this->generarToken($usuario_bd->nombre,$usuario_bd->id);
-
-            // Se borran todas las imágenes sin UUID asignado
-
-            $imagenes = Imagen::all();
-
-            foreach($imagenes as $imagen) {
-                $nota = Nota::where('uuid', $imagen->uuid)->first();
-                if(!$nota) {
-                    Storage::disk('public')->delete($imagen->nombre_archivo);
-                    $imagen->delete();
-                }
-            }
-
-            return $this->success('El usuario fue logeado correctamente', $token);
-        }
-        else
-        {
-            return $this->error('La contraseña es incorrecta');
-        }
+        $this->authService = $authService;
     }
 
-    public function validar(Request $request)
+    public function ingreso(IngresoRequest $request): JsonResponse
     {
-        $token = $request->input('token');
+        $data = $this->authService->login($request);
 
-        if($this->validarToken($token))
-        {
-            $datos = $this->mostrarDatosToken($token);
-            return $this->success('Acceso validado', $datos);
-        }
-        else
-        {
-            return $this->error('Acceso denegado');
-        }
+        return response()->json([
+            'message' => 'El usuario fue logeado correctamente',
+            'data' => $data
+        ], Response::HTTP_OK);
+    }
+
+    public function validar(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'message' => 'Acceso validado y datos de usuario obtenidos',
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->avatar,
+                'role' => $user->role,
+            ]
+        ], Response::HTTP_OK);
     }
 }

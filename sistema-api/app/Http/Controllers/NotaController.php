@@ -2,179 +2,76 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Nota;
-use App\Traits\RespuestaTrait;
-use App\Traits\CifradoTrait;
+use App\Services\NoteService;
 use App\Http\Requests\GuardarNotaRequest;
-use App\Models\Imagen;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\ListarNotasRequest;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
 
 class NotaController extends Controller
 {
-    use RespuestaTrait;
-    use CifradoTrait;
+    protected $noteService;
 
-    public function listar(Request $request, string $pagina)
+    public function __construct(NoteService $noteService)
     {
-        $porTitulo = $request->input('titulo');
-        $porCategorias = $request->input('categorias');
-        $porFavorita = $request->input('favorita');
-        $porCantidad = $request->input('cantidad');
-
-        $notasExpiradas = Nota::whereDate('fecha_expiracion', '<=' , date('Y-m-d'))->get();
-        
-        foreach($notasExpiradas as $notasEx) {
-            $id = $notasEx->id;
-            $nota = Nota::find($id);
-            $nota->categorias()->detach();
-            $nota->delete();
-        }
- 
-        if(!is_numeric($pagina))
-        {
-            $pagina = 1;
-        }
-        
-        $notas = Nota::select('id','titulo','favorita','fecha_expiracion')->with('categorias');
-        
-        if($porTitulo != null && $porTitulo != "") {
-            $notas->where('titulo', 'like', '%' . $porTitulo . '%');
-        }
-
-        if($porCategorias != null && count($porCategorias) > 0) {
-            $notas->whereHas('categorias', function($query) use ($porCategorias) {
-                $query->whereIn('categoria_id', $porCategorias);
-            });
-        }
-
-        if($porFavorita != null && is_bool($porFavorita)) {
-            $notas->where('favorita', ($porFavorita == true) ? 1 : 0);
-        }
-
-        $notas->orderBy('updated_at', 'DESC');
-
-        $per_page = ($porCantidad != null && $porCantidad > 0) ? $porCantidad : 25;
-
-        $resultado = $notas->paginate($per_page, ['*'], 'page', $pagina);
-
-        return $this->success('Se envío listado de notas', $resultado);
+        $this->noteService = $noteService;
     }
 
-    public function cargar(string $id)
+    public function listar(ListarNotasRequest $request, string $pagina): JsonResponse
     {
-        $nota = Nota::select('id','titulo','contenido','favorita','fecha_expiracion','uuid')->with('categorias')->find($id);
-
-        if($nota)
-        {
-            return $this->success('Se envío datos de la nota', $nota);
-        }
-        else
-        {
-            return $this->error('La nota no existe');
-        }
+        $resultado = $this->noteService->getPaginatedNotes($request, $pagina);
+        return response()->json([
+            'message' => 'Se envió el listado de las notas',
+            'data' => $resultado
+        ], Response::HTTP_OK);
     }
 
-    public function crear(GuardarNotaRequest $request)
+    public function cargar(string $id): JsonResponse
     {
-        $validated = $request->validated();
-
-        $nota = new Nota;
-
-        $nota->titulo = $validated['titulo'];
-        $nota->contenido = $validated['contenido'];
-        $nota->favorita = $validated['favorita'];
-        $nota->uuid = $validated['uuid'];
-        $nota->fecha_expiracion = isset($validated['fecha_expiracion']) ? $validated['fecha_expiracion'] : null;
-        
-        $categorias = $validated['categorias'];
-
-        $guardado = $nota->save();
-        
-        $nota->categorias()->attach($categorias);
-
-        if($guardado)
-        {
-            return $this->success('La nota fue creada');
-        }
-        else
-        {
-            return $this->error('Ocurrió un error creando la nota');
-        }
+        $nota = $this->noteService->getNoteById($id);
+        return response()->json([
+            'message' => 'Se enviaron los datos de la nota',
+            'data' => $nota
+        ], Response::HTTP_OK);
     }
 
-    public function actualizar(GuardarNotaRequest $request, string $id)
+    public function crear(GuardarNotaRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-
-        $nota = Nota::find($id);
-
-        if(!$nota)
-        {
-            return $this->error('La nota no existe');
-        }
-
-        $contenido = $validated['contenido'];
-
-        $uuid = $nota->uuid;
-        $imagenes = Imagen::where('uuid', $uuid)->get();
-
-        foreach($imagenes as $imagen) {
-            $nombre_archivo = $imagen->nombre_archivo;
-            if(!str_contains($contenido, $nombre_archivo)) {
-                Storage::disk('public')->delete($nombre_archivo);
-                $imagen->delete();
-            }
-        }
-
-        $nota->titulo = $validated['titulo'];
-        $nota->contenido = $contenido;
-        $nota->favorita = $validated['favorita'];
-        $nota->uuid = $validated['uuid'];
-        $nota->fecha_expiracion = isset($validated['fecha_expiracion']) ? $validated['fecha_expiracion'] : null;
-
-        $categorias = $validated['categorias'];
-
-        $guardado = $nota->save();
-
-        $nota->categorias()->sync($categorias);
-
-        if($guardado)
-        {
-            return $this->success('La nota fue actualizada');
-        }
-        else
-        {
-            return $this->error('Ocurrió un error actualizando la nota');
-        }
+        $nota = $this->noteService->createNote($request);
+        return response()->json([
+            'message' => 'La nota fue creada correctamente',
+            'data' => $nota
+        ], Response::HTTP_CREATED);
     }
 
-    public function borrar(string $id)
+    public function actualizar(GuardarNotaRequest $request, string $id): JsonResponse
     {
-        $nota = Nota::find($id);
+        $nota = $this->noteService->updateNote($request, $id);
+        return response()->json([
+            'message' => 'La nota fue actualizada correctamente',
+            'data' => $nota
+        ], Response::HTTP_OK);
+    }
 
-        if(!$nota)
-        {
-            return $this->error('La nota no existe');
-        }
+    public function borrar(string $id): JsonResponse
+    {
+        $this->noteService->deleteNote($id);
+        return response()->json([
+            'message' => 'La nota fue borrada correctamente'
+        ], Response::HTTP_NO_CONTENT);
+    }
 
-        $nota->categorias()->detach();
+    public function cambiarFavorito(string $id): JsonResponse
+    {
+        $nota = $this->noteService->toggleNoteFavorite($id);
+        $message = $nota->favorita ? 'Nota marcada como favorita' : 'Nota desmarcada como favorita';
 
-        $uuid = $nota->uuid;
-        $imagenes = Imagen::where('uuid', $uuid)->get();
-
-        foreach($imagenes as $imagen) {
-            Storage::disk('public')->delete($imagen->nombre_archivo);
-            $imagen->delete();
-        }
-
-        if($nota->delete())
-        {
-            return $this->success('La nota fue borrada');
-        }
-        else
-        {
-            return $this->error('Ocurrió un error borrando la nota');
-        }
+        return response()->json([
+            'message' => $message,
+            'data' => [
+                'id' => $nota->id,
+                'favorita' => $nota->favorita,
+            ]
+        ], Response::HTTP_OK);
     }
 }

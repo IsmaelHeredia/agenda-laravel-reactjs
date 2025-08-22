@@ -2,111 +2,71 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Categoria;
-use App\Traits\RespuestaTrait;
+use App\Services\CategoryService;
 use App\Http\Requests\GuardarCategoriaRequest;
+use App\Http\Requests\ListarCategoriasRequest;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
 
 class CategoriaController extends Controller
 {
-    use RespuestaTrait;
+    protected $categoryService;
 
-    public function listarTodo() 
+    public function __construct(CategoryService $categoryService)
     {
-        return $this->success('Se envío listado completo de categorías', Categoria::orderBy('nombre')->get());
+        $this->categoryService = $categoryService;
     }
 
-    public function listar(Request $request, string $pagina)
+    public function listarTodo(): JsonResponse
     {
-        $porNombre = $request->input('nombre');
-
-        if(!is_numeric($pagina))
-        {
-            $pagina = 1;
-        }
-        
-        $resultado = Categoria::where('nombre', 'like', '%' . $porNombre . '%')
-                      ->orderBy('nombre', 'ASC')
-                      ->paginate(25, ['*'], 'page', $pagina);
-
-        return $this->success('Se envío listado de categorías', $resultado);
+        $categorias = $this->categoryService->getAllCategories();
+        return response()->json([
+            'message' => 'Se envió el listado completo de las categorías',
+            'data' => $categorias
+        ], Response::HTTP_OK);
     }
 
-    public function cargar(string $id)
+    public function listar(ListarCategoriasRequest $request, string $pagina): JsonResponse
     {
-        $categoria = Categoria::find($id);
-
-        if($categoria)
-        {
-            return $this->success('Se envío datos de la categoría', $categoria);
-        }
-        else
-        {
-            return $this->error('La categoría no existe');
-        }
+        $resultado = $this->categoryService->getPaginatedCategories($request, $pagina);
+        return response()->json([
+            'message' => 'Se envió el listado de las categorías',
+            'data' => $resultado
+        ], Response::HTTP_OK);
     }
 
-    public function crear(GuardarCategoriaRequest $request)
+    public function cargar(string $id): JsonResponse
     {
-        $validated = $request->validated();
-
-        $categoria = new Categoria;
-
-        $categoria->nombre = $validated['nombre'];
-
-        $guardado = $categoria->save();
-
-        if($guardado)
-        {
-            return $this->success('La categoría fue creada', $categoria->id);
-        }
-        else
-        {
-            return $this->error('Ocurrió un error creando la categoría');
-        }
+        $categoria = $this->categoryService->getCategoryById($id);
+        return response()->json([
+            'message' => 'Se enviaron los datos de la categoría',
+            'data' => $categoria
+        ], Response::HTTP_OK);
     }
 
-    public function actualizar(GuardarCategoriaRequest $request, string $id)
+    public function crear(GuardarCategoriaRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-
-        $categoria = Categoria::find($id);
-
-        if(!$categoria)
-        {
-            return $this->error('La categoría no existe');
-        }
-
-        $categoria->nombre = $validated['nombre'];
-
-        $guardado = $categoria->save();
-
-        if($guardado)
-        {
-            return $this->success('La categoría fue actualizada');
-        }
-        else
-        {
-            return $this->error('Ocurrió un error actualizando la categoría');
-        }
+        $categoria = $this->categoryService->createCategory($request);
+        return response()->json([
+            'message' => 'La categoría fue creada correctamente',
+            'data' => $categoria
+        ], Response::HTTP_CREATED);
     }
 
-    public function borrar(string $id)
+    public function actualizar(GuardarCategoriaRequest $request, string $id): JsonResponse
     {
-        $categoria = Categoria::find($id);
+        $categoria = $this->categoryService->updateCategory($request, $id);
+        return response()->json([
+            'message' => 'La categoría fue actualizada correctamente',
+            'data' => $categoria
+        ], Response::HTTP_OK);
+    }
 
-        if(!$categoria)
-        {
-            return $this->error('La categoría no existe');
-        }
-
-        if($categoria->delete())
-        {
-            return $this->success('La categoría fue borrada');
-        }
-        else
-        {
-            return $this->error('Ocurrió un error borrando la categoría');
-        }
+    public function borrar(string $id): JsonResponse
+    {
+        $this->categoryService->deleteCategory($id);
+        return response()->json([
+            'message' => 'La categoría fue borrada correctamente'
+        ], Response::HTTP_NO_CONTENT);
     }
 }

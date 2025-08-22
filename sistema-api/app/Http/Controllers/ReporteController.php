@@ -2,27 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Nota;
-use App\Models\Categoria;
-use App\Traits\RespuestaTrait;
-use Illuminate\Support\Facades\DB;
+use App\Interfaces\ReportServiceInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
 
 class ReporteController extends Controller
 {
-    use RespuestaTrait;
+    protected $reportService;
 
-    public function generarReporte()
+    public function __construct(ReportServiceInterface $reportService)
     {
-        $datos = DB::table('categoria_nota')
-        ->join('categorias', 'categoria_nota.categoria_id', '=', 'categorias.id')
-        ->join('notas', 'categoria_nota.nota_id', '=', 'notas.id')
-        ->select(DB::raw('count(categoria_nota.categoria_id) as cantidad, categorias.nombre as nombre_categoria'))
-        ->groupBy('categorias.nombre')
-        ->orderBy('cantidad', 'DESC')
-        ->take(3)
-        ->get();
+        $this->reportService = $reportService;
+    }
 
-        return $this->success('Se enviaron los datos para el gráfico', $datos);
+    public function generarReporte(): JsonResponse
+    {
+        $datos = $this->reportService->getTopCategoriesReport();
+
+        return response()->json([
+            'message' => 'Se enviaron los datos para el gráfico',
+            'data' => $datos
+        ], Response::HTTP_OK);
     }
 }

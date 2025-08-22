@@ -10,7 +10,7 @@ class GuardarNotaRequest extends FormRequest
     {
         return true;
     }
-    
+
     public function rules(): array
     {
         return [
@@ -26,11 +26,24 @@ class GuardarNotaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'titulo.required' => 'El titulo es obligatorio',
+            'titulo.required' => 'El título es obligatorio',
+            'titulo.string' => 'El título debe ser una cadena de texto',
+            'titulo.max' => 'El título no debe exceder los :max caracteres',
+
             'contenido.required' => 'El contenido es obligatorio',
+            'contenido.string' => 'El contenido debe ser una cadena de texto',
+
             'favorita.required' => 'El campo favorita es obligatorio',
-            'uuid.required' => 'El campo uuid es obligatorio',
-            'categorias.required' => 'Seleccione una o varias categorias',
+            'favorita.boolean' => 'El campo favorita debe ser verdadero o falso',
+
+            'fecha_expiracion.date' => 'La fecha de expiración debe ser una fecha válida',
+
+            'uuid.required' => 'El UUID es obligatorio',
+            'uuid.string' => 'El UUID debe ser una cadena de texto',
+            'uuid.uuid' => 'El UUID no tiene un formato válido',
+
+            'categorias.required' => 'Debe seleccionar al menos una categoría',
+            'categorias.array' => 'Las categorías deben ser un formato de lista',
         ];
     }
 }

@@ -23,7 +23,13 @@ class IngresoRequest extends FormRequest
     {
         return [
             'usuario.required' => 'El usuario es obligatorio',
-            'clave.required' => 'La clave es obligatoria'
+            'usuario.string' => 'El usuario debe ser una cadena de texto',
+            'usuario.min' => 'El usuario debe tener al menos :min caracteres',
+            'usuario.max' => 'El usuario no debe exceder los :max caracteres',
+            
+            'clave.required' => 'La clave es obligatoria',
+            'clave.string' => 'La clave debe ser una cadena de texto',
+            'clave.min' => 'La clave debe tener al menos :min caracteres',
         ];
     }
 }
