@@ -1,37 +1,43 @@
+import React, { Suspense } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+import RequireAuth from "@utils/RequireAuth";
+import { RootState } from "@store/store";
+
+const Ingreso = React.lazy(() => import("@pages/ingreso/Index"));
+const Home = React.lazy(() => import("@pages/home/Index"));
+const ListarCategorias = React.lazy(() => import("@pages/categorias/Index"));
+const ListarNotas = React.lazy(() => import("@pages/notas/Index"));
+const GuardarNota = React.lazy(() => import("@pages/notas/Guardar"));
+
+import LoadingOverlay from "@/components/LoadingOverlay/LoadingOverlay";
+
 import "./App.css";
 
-import Ingreso from "@pages/ingreso/Index";
-import Home from "@pages/home/Index";
-import ListarCategorias from "@pages/categorias/Index";
-import ListarNotas from "@pages/notas/Index";
-import GuardarNota from "@pages/notas/Guardar";
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import RutasNormales from "@utils/RutasNormales";
-import ProtegerRutas from "@utils/ProtegerRutas";
-
 function App() {
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<RutasNormales />}>
-          <Route>
-            <Route path="/ingreso" element={<Ingreso />} />
+      <Suspense fallback={<LoadingOverlay open={true} message="Descargando componentes..." />}>
+        <Routes>
+          <Route
+            path="/ingreso"
+            element={isLoggedIn ? <Navigate to="/" /> : <Ingreso />}
+          />
+
+          <Route element={<RequireAuth />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/categorias" element={<ListarCategorias />} />
+            <Route path="/notas" element={<ListarNotas />} />
+            <Route path="/notas/agregar" element={<GuardarNota />} />
+            <Route path="/notas/:id/editar" element={<GuardarNota />} />
           </Route>
-        </Route>
-        <Route element={<ProtegerRutas />}>
-          <Route path="/" element={<Home/>} />
-          <Route path="/categorias" element={<ListarCategorias/>} />
-          <Route path="/notas" element={<ListarNotas/>} />
-          <Route path="/notas/agregar" element={<GuardarNota/>} />
-          <Route path="/notas/:id/editar" element={<GuardarNota/>} />
-        </Route>
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
-
 }
 
 export default App;

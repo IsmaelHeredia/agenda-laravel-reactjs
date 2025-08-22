@@ -4,16 +4,16 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import PageTitle from "@components/PageTitle";
+import PageTitle from "@/components/PageTitle/PageTitle";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 
 import WbSunnyIcon from "@mui/icons-material/WbSunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 
-import { RootState } from "@customTypes/redux/global";
 import { useSelector, useDispatch } from "react-redux";
 import { changeMode, selectTheme } from "@store/reducers/themesSlice";
+import { RootState } from "@/store/store";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
 
@@ -21,14 +21,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     const theme = useSelector(selectTheme);
 
     const dispatch = useDispatch();
-
-    const handleClickSetLight = () => {
-        dispatch(changeMode({ mode: "light" }));
-    };
-
-    const handleClickSetDark = () => {
-        dispatch(changeMode({ mode: "dark" }));
-    };
 
     return (
         <>

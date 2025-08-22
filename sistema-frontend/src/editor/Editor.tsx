@@ -50,11 +50,9 @@ import { Text } from "@tiptap/extension-text";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 
-import Image from '@tiptap/extension-image';
+import { useUploadImageMutation } from "@store/api/apiSlices";
 
-import { RootState } from "@customTypes/redux/global";
-import { useSelector } from "react-redux";
-import axios from "axios";
+import Image from '@tiptap/extension-image';
 
 import {
   FontSize,
@@ -71,42 +69,14 @@ const CustomLinkExtension = Link.extend({
   inclusive: false,
 });
 
-export const convertBase64 = (image: File): Promise<string> => {
-  return new Promise<string>(async (resolve, reject) => {
+export const convertBase64 = (image: Blob) => {
+  return new Promise((resolve, reject) => {
     const fileReader = new FileReader();
     fileReader.readAsDataURL(image);
-    fileReader.onload = () => resolve(fileReader.result?.toString() || "");
-    fileReader.onerror = error => reject(error);
+    fileReader.onload = () => resolve(fileReader.result || "");
+    fileReader.onerror = (error) => reject(error);
   });
 };
-
-export const uploadImageServer = (token: string, uuid:string, file: File): Promise<string> => {
-  return new Promise<string>(async (resolve, reject) => {
-
-    const base64 = await convertBase64(file);
-
-    const config = {
-      headers: { Authorization: `Bearer ${token}` }
-    };
-    
-    const formData = {
-      "uuid": uuid,
-      "base64": base64
-    };
-
-    let { data } = await axios.post(import.meta.env.VITE_API_URL + "/imagenes", formData, config);
-
-    let url_imagen = import.meta.env.VITE_IMAGES_URL + "/" + data.datos;
-
-    resolve(url_imagen);
-
-  });
-};
-
-interface Props {
-  content: string
-  uuid: string
-}
 
 const Editor = React.forwardRef((props: any, ref: any) => {
 
@@ -114,16 +84,16 @@ const Editor = React.forwardRef((props: any, ref: any) => {
 
   const theme = useTheme();
 
-  const token = useSelector((state: RootState) => state.auth.token);
+  const [uploadImage] = useUploadImageMutation();
 
-  return(
+  return (
     <>
-        <RichTextEditor
-          {...other}
-          ref={ref}
-          content={content}
-          extensions={
-            [  
+      <RichTextEditor
+        {...other}
+        ref={ref}
+        content={content}
+        extensions={
+          [
             StarterKit,
             CustomLinkExtension.configure({
               autolink: true,
@@ -139,80 +109,89 @@ const Editor = React.forwardRef((props: any, ref: any) => {
             FontFamily,
             FontSize,
             Highlight.configure({ multicolor: true }),
-            ResizableImage,  
+            ResizableImage,
             TaskList,
             TaskItem.configure({
               nested: true,
             }),
-            ]
-          }
-          renderControls={() =>
-            <MenuControlsContainer>
+          ]
+        }
+        renderControls={() =>
+          <MenuControlsContainer>
 
-              <MenuSelectHeading />
+            <MenuSelectHeading />
 
-              <MenuSelectFontSize />
+            <MenuSelectFontSize />
 
-              <MenuButtonBold />
+            <MenuButtonBold />
 
-              <MenuButtonStrikethrough />
+            <MenuButtonStrikethrough />
 
-              <MenuButtonTextColor
-                defaultTextColor={theme.palette.text.primary}
-                swatchColors={[
-                  { value: "#000000", label: "Black" },
-                  { value: "#ffffff", label: "White" },
-                  { value: "#888888", label: "Grey" },
-                  { value: "#ff0000", label: "Red" },
-                  { value: "#ff9900", label: "Orange" },
-                  { value: "#ffff00", label: "Yellow" },
-                  { value: "#00d000", label: "Green" },
-                  { value: "#0000ff", label: "Blue" },
-                ]}
-              />
+            <MenuButtonTextColor
+              defaultTextColor={theme.palette.text.primary}
+              swatchColors={[
+                { value: "#000000", label: "Black" },
+                { value: "#ffffff", label: "White" },
+                { value: "#888888", label: "Grey" },
+                { value: "#ff0000", label: "Red" },
+                { value: "#ff9900", label: "Orange" },
+                { value: "#ffff00", label: "Yellow" },
+                { value: "#00d000", label: "Green" },
+                { value: "#0000ff", label: "Blue" },
+              ]}
+            />
 
-              <MenuButtonHighlightColor
-                swatchColors={[
-                  { value: "#595959", label: "Dark grey" },
-                  { value: "#dddddd", label: "Light grey" },
-                  { value: "#ffa6a6", label: "Light red" },
-                  { value: "#ffd699", label: "Light orange" },
-                  { value: "#ffff00", label: "Yellow" },
-                  { value: "#99cc99", label: "Light green" },
-                  { value: "#90c6ff", label: "Light blue" },
-                  { value: "#8085e9", label: "Light purple" },
-                ]}
-              />
+            <MenuButtonHighlightColor
+              swatchColors={[
+                { value: "#595959", label: "Dark grey" },
+                { value: "#dddddd", label: "Light grey" },
+                { value: "#ffa6a6", label: "Light red" },
+                { value: "#ffd699", label: "Light orange" },
+                { value: "#ffff00", label: "Yellow" },
+                { value: "#99cc99", label: "Light green" },
+                { value: "#90c6ff", label: "Light blue" },
+                { value: "#8085e9", label: "Light purple" },
+              ]}
+            />
 
-              <MenuButtonEditLink />
+            <MenuButtonEditLink />
 
-              <MenuSelectTextAlign />
+            <MenuSelectTextAlign />
 
-              <MenuButtonOrderedList />
+            <MenuButtonOrderedList />
 
-              <MenuButtonBulletedList />
+            <MenuButtonBulletedList />
 
-              <MenuButtonTaskList />
+            <MenuButtonTaskList />
 
-              <MenuButtonCodeBlock />
+            <MenuButtonCodeBlock />
 
-              <MenuButtonImageUpload
-                onUploadFiles={(files) =>
-                  Promise.all(
-                    files.map(async (file) => {
-                      const url = await uploadImageServer(token, uuid, file);
-                      return {
-                        src: url,
-                        alt: file.name,
-                      };
-                    })
-                  )
+            <MenuButtonImageUpload
+              onUploadFiles={async (files) => {
+                const validImages = [];
+
+                for (const file of files) {
+                  const base64 = await convertBase64(file);
+                  try {
+                    const data = await uploadImage({ uuid, base64 }).unwrap();
+                    const url = import.meta.env.VITE_IMAGES_URL + "/" + data;
+
+                    validImages.push({
+                      src: url,
+                      alt: file.name,
+                    });
+                  } catch (error) {
+                    console.error("Error al subir la imagen:", error);
+                  }
                 }
-              />
 
-            </MenuControlsContainer>
-          }
-        />
+                return validImages;
+              }}
+            />
+
+          </MenuControlsContainer>
+        }
+      />
     </>
   )
 })
