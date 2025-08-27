@@ -29,7 +29,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::delete('/notas/{id}', [NotaController::class, 'borrar'])->name('borrarNota');
     Route::patch('notas/{id}/cambiar-favorito', [NotaController::class, 'cambiarFavorito']);
 
-    Route::post('imagenes', [ImagenController::class, 'listar'])->name('listarImagenes');
+    Route::get('imagenes', [ImagenController::class, 'listar'])->name('listarImagenes');
     Route::get('/imagenes/{id}', [ImagenController::class, 'cargar'])->name('cargarImagen');
     Route::post('/imagenes', [ImagenController::class, 'crear'])->name('crearImagen');
     Route::put('/imagenes/{id}', [ImagenController::class, 'actualizar'])->name('actualizarImagen');
