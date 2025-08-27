@@ -101,10 +101,6 @@ class ImageService
             throw new ImageException('La imagen no existe', Response::HTTP_NOT_FOUND);
         }
 
-        if (!$this->imageRepository->deleteFile($imagen->nombre_archivo)) {
-            error_log("No se pudo borrar el archivo físico: " . $imagen->nombre_archivo);
-        }
-
         if (!$this->imageRepository->delete($imagen)) {
             throw new ImageException('Ocurrió un error borrando la imagen', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
