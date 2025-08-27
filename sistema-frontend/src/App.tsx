@@ -7,7 +7,6 @@ import { RootState } from "@store/store";
 
 const Ingreso = React.lazy(() => import("@pages/ingreso/Index"));
 const Home = React.lazy(() => import("@pages/home/Index"));
-const ListarCategorias = React.lazy(() => import("@pages/categorias/Index"));
 const ListarNotas = React.lazy(() => import("@pages/notas/Index"));
 const GuardarNota = React.lazy(() => import("@pages/notas/Guardar"));
 
@@ -29,7 +28,6 @@ function App() {
 
           <Route element={<RequireAuth />}>
             <Route path="/" element={<Home />} />
-            <Route path="/categorias" element={<ListarCategorias />} />
             <Route path="/notas" element={<ListarNotas />} />
             <Route path="/notas/agregar" element={<GuardarNota />} />
             <Route path="/notas/:id/editar" element={<GuardarNota />} />
