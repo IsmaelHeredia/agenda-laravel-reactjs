@@ -46,7 +46,7 @@ class NoteRepository implements NoteRepositoryInterface
     }
 
     public function getPaginated(
-        string $titulo = null,
+        ?string $titulo = null,
         ?array $categorias = null,
         ?bool $favorita = null,
         int $cantidad = 25,
@@ -150,8 +150,9 @@ class NoteRepository implements NoteRepositoryInterface
         return Imagen::where('uuid', $uuid)->get();
     }
 
-    public function deleteImageFile(string $filePath): void
+    public function deleteImageFile(string $fileName): void
     {
+        $filePath = 'imagenes/' . $fileName;
         if (Storage::disk('public')->exists($filePath)) {
             Storage::disk('public')->delete($filePath);
         }
