@@ -53,7 +53,7 @@ class CategoryRepository implements CategoryRepositoryInterface
         });
     }
 
-    public function getPaginated(string $nombre = null, int $pagina = 1, int $perPage = 25): LengthAwarePaginator
+    public function getPaginated(?string $nombre = null, int $pagina = 1, int $perPage = 25): LengthAwarePaginator
     {
         $version = $this->getCurrentListVersion();
         $cacheKey = self::CACHE_KEY_PREFIX_LIST . $version . '_' . md5(json_encode([

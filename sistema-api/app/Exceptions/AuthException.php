@@ -11,7 +11,7 @@ class AuthException extends Exception
     protected $statusCode;
     protected $data;
 
-    public function __construct(string $message = "", int $statusCode = Response::HTTP_BAD_REQUEST, $data = null, Throwable $previous = null)
+    public function __construct(string $message = "", int $statusCode = Response::HTTP_BAD_REQUEST, $data = null, ?Throwable $previous = null)
     {
         parent::__construct($message, 0, $previous);
         $this->statusCode = $statusCode;

@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 interface NoteRepositoryInterface
 {
     public function getPaginated(
-        string $titulo = null,
+        ?string $titulo = null,
         ?array $categorias = null,
         ?bool $favorita = null,
         int $cantidad = 25,

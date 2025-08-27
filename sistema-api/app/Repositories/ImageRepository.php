@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ImageRepository implements ImageRepositoryInterface
 {
-    public function getByUuid(string $uuid = null): Collection
+    public function getByUuid(?string $uuid = null): Collection
     {
         $query = Imagen::orderBy('created_at', 'ASC');
 
