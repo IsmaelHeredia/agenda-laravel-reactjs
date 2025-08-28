@@ -178,7 +178,7 @@ const ListarNotasContainer: React.FC = () => {
                         tablaNotasRef={tablaNotasRef}
                     />
 
-                    {totalPaginas >= 1 && (
+                    {notas.length > 0 && totalPaginas >= 1 && (
                         <Box
                             sx={{
                                 display: "flex",
