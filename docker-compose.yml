@@ -1,0 +1,65 @@
+services:
+  laravel_app:
+    build:
+      context: ./sistema-api
+      dockerfile: docker/Dockerfile
+    container_name: agenda_laravel_backend
+    ports:
+      - "7771:80"
+    volumes:
+      - ./sistema-api:/var/www/html:delegated
+    depends_on:
+      - mysql
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      ENCRYPT_KEY: ${ENCRYPT_KEY}
+
+  mysql:
+    image: mysql:8.0
+    container_name: agenda_mysql_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: agenda_phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql
+
+  react_frontend:
+    build:
+      context: ./sistema-frontend
+      dockerfile: Dockerfile
+    container_name: agenda_react_frontend
+    ports:
+      - "9991:80"
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+      VITE_IMAGES_URL: ${VITE_IMAGES_URL}
+      VITE_TIMEOUT_REDIRECT: ${VITE_TIMEOUT_REDIRECT}
+      VITE_TIMEOUT_TOAST: ${VITE_TIMEOUT_TOAST}
+      VITE_ERROR_AXIOS: ${VITE_ERROR_AXIOS}
+    volumes:
+      - ./sistema-frontend:/app
+    depends_on:
+      - laravel_app
+
+volumes:
+  mysql_data:
