@@ -93,7 +93,6 @@ const NotaFijaPresentational: React.FC<NotaFijaPresentationalProps> = ({
                             sx={{
                                 fontSize: "25px",
                                 mt: "15px",
-                                overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 display: '-webkit-box',
                                 WebkitLineClamp: 3,
