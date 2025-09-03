@@ -20,7 +20,21 @@ Este proyecto es una agenda full-stack que usa **Laravel** para el backend y **R
 
 A continuación, se muestran algunas imágenes del sistema en funcionamiento:
 
-![screenshot]()
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi-Bz9kB1ANks7q4ia2l3jtrkikULChzp1_McfroeWzfR8w0M2i99J3F7Rw8NlbRLCVzhoXRT7ZEr0UPniurvt3aSA5gTjlPiSA_yoqURemYixxJc8VTmVuQYOJ8ZZKf71Wr9U-qT0-sKluxtsK3PCVXurbZwuMTIYyUxbFBd4y2pQbktfBr71HZBEmERU/s1919/1.png)
+
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhUGtx7tZX1q7ygp-7bEMdOM5bU2o9CoMhHkdm9xsvpaxm5BXiMxoD9dCY5MQpuh2qXBU6Je3FofZ9pynpeHVDIXvPZbx5mJPa_HH6mZW18GyJV76Y-1mj5ZIut3QEz7QjFCwzLfBRL2V_OTVqFx8Yiz7nBusEnoetrgyhlzG9a_R7r-fZJGdBrastfMio/s1919/2.png)
+
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgA7l50oO7ZjdVLk5-vOSQWucPEB7eyySvtIW2wfsa37ZzkBmcWCF0DWuResUlLpsyGKZZ7vr354xJbXKNrIVoyHcEtxVhFRaihN_DS286D8TxQnD9SnfUXw86ekf_lZNHxQfhlP02qjctz4R8hotYn74V83RSJryPnK_LWYw5R8d7y5o1cg9ZK9M56YWQ/s1919/3.png)
+
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhAYEjN3gxsuh0pUAwq3YoMu2NhLT7vsLV2215uuo02cEG6yU4u8Z4VKsC9sGi-QQ96BoepmllJwtLiQ2qnKEKSnLpaJJM2hmdDSTDW7sDyqQF3JjzhjaowOLcOcu7zolHtw-cVeN9Cw3ubvcLvjMD3GMS6nJzQho-OCwxUlTdbn0IWg6L0F9T_cCrmq_g/s1919/4.png)
+
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh6bd5irc8SDvW49T7MrJBnTepOvSuQglxgE4BLsijQKO4VC_eO2fSSS5dxjnX5sqaeRSsVILk_xZkfy7DyzMXoj98G0y7R9RQPCKFGIvWHQ4xjk6cVz5JlQKcTRzUFP6yrhMk8F4Yu1OmkrUIt0xsStYBbL7HTb0Ioe-m3vvgY3OzjLE7IWQgaLP8MtQ/s1919/5.png)
+
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH6PfV9JPi9z6UG0hDCE7P0l1RInoJS1IQuSEmQ-5_vJZlGoCcJXR51ZV-Slfd18PvTyQyXDr559tqWh3vGkHQz6cjeZX4uL_nYyO34WXaoPFbY18Kj9bXojMaClRFwAastskneuhHTjM3UO6a3EAEWY2PH4-xtaytKyMrY-2XYRMf_s84hyCxCwF3Qxo/s1919/6.png)
+
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhVtKW6Ippo79ZK_02M9Cged7BTjHZPXbwMr_AD_HO8S_TYA1r1n7ZwNvfr9ei9s6AiOoZkcGOpGe8d2pCMya7QLuB-FdRlMwnQMs-HolycehY8n2yRBmWrTs08DVN7AKamU12kWSM96f517z_HyDh-ndBBjS8gLEfCQd05_ZRDzRe8q_VppBH3_3JdhuI/s1919/7.png)
+
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhgoy9E4Hgt2qiTNpwwctaU0O3MxyF2bbwlWsVN78WNlNMcX6efTwRheQqKdDyShaoQB0nrDhvOhg0fPXfPbo_X-Hu0Qu5TpnKb1bTiF67GegJ_9qlipqHFgOnnKOqpGdr7r0LoeicDP5FRFwXJV2_oCls0z7uG-n17OJvUXfzPt-XIiMFi5TesjpFSoL8/s1919/8.png)
 
 ## Instalación del proyecto
 
