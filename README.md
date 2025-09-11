@@ -86,14 +86,6 @@ Crea un enlace simbólico para el almacenamiento:
 php artisan storage:link
 ```
 
-**3 - Iniciar el servidor**
-
-Para iniciar el servidor del backend, ejecuta este comando:
-
-```
-php artisan serve --port=7777
-```
-
 ### Frontend (React.js)
 
 Se necesitan seguir estos pasos para configurar el frontend ubicado en la carpeta **sistema-frontend**.
@@ -110,12 +102,6 @@ Instala las dependencias: Abre la terminal en la carpeta **sistema-frontend** y 
 
 ```
 npm install
-```
-
-Inicia el servidor de desarrollo:
-
-```
-npm run dev
 ```
 
 ### Iniciar los servidores
