@@ -96,9 +96,9 @@ Copia y configura el archivo de entorno: Renombra el archivo **.env.example** a 
 
 Ajusta la URL de la API: Dentro del archivo .env, edita el parámetro para que apunte a la URL donde se está ejecutando tu backend. Por defecto, será la URL del servidor que acabas de iniciar.
 
-**2 - Iniciar el servidor**
+**2 - Instalación de dependencias**
 
-Instala las dependencias: Abre la terminal en la carpeta **sistema-frontend** y ejecuta este comando:
+Abre la terminal en la carpeta **sistema-frontend** y ejecuta este comando:
 
 ```
 npm install
