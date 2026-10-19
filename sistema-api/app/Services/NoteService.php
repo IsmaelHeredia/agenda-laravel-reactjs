@@ -29,6 +29,7 @@ class NoteService
     public function cleanExpiredNotesAutomatically(): void
     {
         $this->noteRepository->deleteExpiredNotes();
+        $this->reportService->invalidateTopCategoriesReportCache();
     }
 
     public function getPaginatedNotes(ListarNotasRequest $request, string $pagina): LengthAwarePaginator
@@ -124,6 +125,7 @@ class NoteService
         if (!$this->noteRepository->delete($nota)) {
             throw new NoteException('Ocurrió un error borrando la nota', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        $this->reportService->invalidateTopCategoriesReportCache();
     }
 
     protected function deleteNoteImagesForDeletion(string $uuid): void

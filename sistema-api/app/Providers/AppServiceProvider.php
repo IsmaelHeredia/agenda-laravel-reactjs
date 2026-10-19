@@ -2,18 +2,19 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-
-use App\Interfaces\UserRepositoryInterface;
-use App\Repositories\UserRepository;
 use App\Interfaces\CategoryRepositoryInterface;
-use App\Repositories\CategoryRepository;
-use App\Interfaces\NoteRepositoryInterface;
-use App\Repositories\NoteRepository;
-use App\Interfaces\ReportServiceInterface;
-use App\Services\ReportService;
 use App\Interfaces\ImageRepositoryInterface;
+use App\Interfaces\NoteRepositoryInterface;
+use App\Interfaces\ReportServiceInterface;
+use App\Interfaces\UserRepositoryInterface;
+use App\Models\Categoria;
+use App\Observers\CategoriaObserver;
+use App\Repositories\CategoryRepository;
 use App\Repositories\ImageRepository;
+use App\Repositories\NoteRepository;
+use App\Repositories\UserRepository;
+use App\Services\ReportService;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        Categoria::observe(CategoriaObserver::class);
     }
 }

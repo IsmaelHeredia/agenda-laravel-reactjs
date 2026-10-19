@@ -10,6 +10,14 @@ while ! nc -z mysql 3306; do
 done
 echo "[INFO] MySQL ya está disponible. Se continúa con la configuración de Laravel."
 
+if [ "$DOCKER_REDIS" = "1" ]; then
+  echo "[INFO] DOCKER_REDIS=1, esperando a que Redis esté disponible..."
+  while ! nc -z redis 6379; do
+    sleep 1
+  done
+  echo "[INFO] Redis ya está disponible."
+fi
+
 echo "[INFO] Configurando permisos para los directorios de Laravel..."
 mkdir -p "$APP_DIR/storage/framework/cache"
 mkdir -p "$APP_DIR/storage/framework/sessions"

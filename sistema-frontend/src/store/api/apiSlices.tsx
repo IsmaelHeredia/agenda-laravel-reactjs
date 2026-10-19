@@ -48,6 +48,13 @@ export const apiAuth = createApi({
     }),
 });
 
+const invalidarNotas = async (_arg: any, { dispatch, queryFulfilled }: any) => {
+    try {
+        await queryFulfilled;
+        dispatch(apiNotas.util.invalidateTags(["Notas"]));
+    } catch {}
+};
+
 export const apiCategorias = createApi({
     tagTypes: ["Categorias"],
     reducerPath: "apiCategorias",
@@ -76,8 +83,9 @@ export const apiCategorias = createApi({
         }),
         getCategoria: builder.query({
             query: (id) => ({ url: "/categorias/" + id, method: "GET" }),
+            providesTags: ["Categorias"],
             transformResponse: (response: any) => ({
-                categoria: response.data.data,
+                categoria: response.data,
             }),
         }),
         createCategoria: builder.mutation({
@@ -98,6 +106,7 @@ export const apiCategorias = createApi({
                 };
             },
             invalidatesTags: ["Categorias"],
+            onQueryStarted: invalidarNotas,
         }),
         deleteCategoria: builder.mutation({
             query: (id) => ({
@@ -105,6 +114,7 @@ export const apiCategorias = createApi({
                 method: "DELETE",
             }),
             invalidatesTags: ["Categorias"],
+            onQueryStarted: invalidarNotas,
         }),
     }),
 });

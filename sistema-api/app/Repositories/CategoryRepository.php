@@ -4,44 +4,22 @@ namespace App\Repositories;
 
 use App\Interfaces\CategoryRepositoryInterface;
 use App\Models\Categoria;
-use Illuminate\Support\Facades\Cache;
-use App\Models\CacheVersion;
+use App\Repositories\Concerns\HasListVersion;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class CategoryRepository implements CategoryRepositoryInterface
 {
+    use HasListVersion;
+
     protected const CACHE_VERSION_KEY = 'categories_list_version';
     protected const CACHE_KEY_ALL = 'categories.all.';
     protected const CACHE_KEY_PREFIX_ID = 'categories.id.';
     protected const CACHE_KEY_PREFIX_LIST = 'categories.list.';
-    protected const CACHE_TTL_PAGINATED = 60 * 24 * 7;
+    protected const CACHE_TTL_PAGINATED = 60 * 60 * 24 * 7;
     protected const CACHE_TTL_SINGLE_ITEM = 60 * 60 * 24;
     protected const CACHE_TTL_ALL_ITEMS = 60 * 60 * 24;
-
-    private function getCurrentListVersion(): int
-    {
-        $versionEntry = CacheVersion::where('key', self::CACHE_VERSION_KEY)->first();
-        if (!$versionEntry) {
-            $versionEntry = CacheVersion::create([
-                'key' => self::CACHE_VERSION_KEY,
-                'version' => now()->timestamp
-            ]);
-        }
-        return $versionEntry->version;
-    }
-
-    private function incrementListVersion(): void
-    {
-        $versionEntry = CacheVersion::where('key', self::CACHE_VERSION_KEY)->first();
-        if ($versionEntry) {
-            $versionEntry->update(['version' => now()->timestamp]);
-        } else {
-            CacheVersion::create([
-                'key' => self::CACHE_VERSION_KEY,
-                'version' => now()->timestamp
-            ]);
-        }
-    }
 
     public function getAllOrderedByName(): array
     {
@@ -88,7 +66,7 @@ class CategoryRepository implements CategoryRepositoryInterface
         $categoria->nombre = $data['nombre'];
         $categoria->save();
 
-        $this->incrementListVersion(); 
+        $this->incrementListVersion();
 
         return $categoria;
     }
@@ -110,7 +88,7 @@ class CategoryRepository implements CategoryRepositoryInterface
 
     public function delete(Categoria $categoria): bool
     {
-        $deleted = $categoria->delete();
+        $deleted = (bool) DB::transaction(fn () => $categoria->delete());
 
         if ($deleted) {
             $this->incrementListVersion();

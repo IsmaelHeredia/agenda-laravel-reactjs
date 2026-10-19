@@ -5,11 +5,15 @@ services:
       dockerfile: docker/Dockerfile
     container_name: agenda_laravel_backend
     ports:
-      - "7771:80"
+      - "127.0.0.1:7771:80"
     volumes:
       - ./sistema-api:/var/www/html:delegated
     depends_on:
-      - mysql
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+        required: false
     environment:
       DB_CONNECTION: mysql
       DB_HOST: mysql
@@ -18,12 +22,17 @@ services:
       DB_USERNAME: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}
       ENCRYPT_KEY: ${ENCRYPT_KEY}
+      DOCKER_REDIS: ${DOCKER_REDIS:-0}
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-null}
 
   mysql:
     image: mysql:8.0
     container_name: agenda_mysql_db
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -32,11 +41,26 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  redis:
+    image: redis:7-alpine
+    container_name: agenda_redis
+    profiles: ["redis"]
+    command: >
+      redis-server
+      --maxmemory 128mb
+      --maxmemory-policy volatile-lru
+      --save ""
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: agenda_phpmyadmin
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     environment:
       PMA_HOST: mysql
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -49,7 +73,7 @@ services:
       dockerfile: Dockerfile
     container_name: agenda_react_frontend
     ports:
-      - "9991:80"
+      - "127.0.0.1:9991:80"
     environment:
       VITE_API_URL: ${VITE_API_URL}
       VITE_IMAGES_URL: ${VITE_IMAGES_URL}
@@ -61,5 +85,72 @@ services:
     depends_on:
       - laravel_app
 
+  mysql_test:
+    image: mysql:8.0
+    container_name: agenda_mysql_test
+    profiles: ["test"]
+    ports:
+      - "127.0.0.1:3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_test_pass
+      MYSQL_DATABASE: agenda_test
+      MYSQL_USER: agenda_test
+      MYSQL_PASSWORD: agenda_test_pass
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - test_net
+
+  laravel_tests:
+    build:
+      context: ./sistema-api
+      dockerfile: docker/Dockerfile
+    container_name: agenda_laravel_tests
+    profiles: ["test"]
+    user: "www-data"
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ./sistema-api:/var/www/html:delegated
+    environment:
+      APP_ENV: testing
+      APP_CONFIG_CACHE: /tmp/config-testing.php
+      DB_CONNECTION: mysql
+      DB_HOST: mysql_test
+      DB_PORT: 3306
+      DB_DATABASE: agenda_test
+      DB_USERNAME: agenda_test
+      DB_PASSWORD: agenda_test_pass
+      DOCKER_REDIS: 0
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+    depends_on:
+      mysql_test:
+        condition: service_healthy
+    networks:
+      - test_net
+
+  react_tests:
+    image: node:18-alpine
+    container_name: agenda_react_tests
+    profiles: ["test"]
+    working_dir: /app
+    command: sh -c "npm install && tail -f /dev/null"
+    volumes:
+      - ./sistema-frontend:/app
+      - frontend_test_node_modules:/app/node_modules
+    environment:
+      CI: "true"
+
+networks:
+  default:
+  test_net:
+
 volumes:
   mysql_data:
+  frontend_test_node_modules:
